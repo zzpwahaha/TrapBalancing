@@ -1,0 +1,24 @@
+{
+    "jupyter.jupyterServerType": "local",
+    "python.pythonPath": "C:\\software\\Anaconda3\\python.exe",
+    "workbench.editorAssociations": {
+        "*.ipynb": "jupyter-notebook"
+    },
+    "workbench.colorTheme": "Visual Studio Light",
+    "cmake.configureOnOpen": true,
+    "window.zoomLevel": 1,
+    "security.workspace.trust.untrustedFiles": "open",
+    "notebook.cellToolbarLocation": {
+        "default": "right",
+        "jupyter-notebook": "left"
+    },
+    "jupyter.askForKernelRestart": false,
+    "diffEditor.renderSideBySide": false,
+    "gitlens.defaultTimeFormat": null,
+    "gitlens.defaultDateFormat": null,
+    "breadcrumbs.enabled": false,
+    "python.analysis.extraPaths": [
+        "./3rd_Party/Vimba_4.2/VimbaPython/Source"
+    ]
+        // see https://donjayamanne.github.io/pythonVSCodeDocs/docs/autocomplete/
+}
