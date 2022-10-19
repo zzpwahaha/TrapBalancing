@@ -3,10 +3,10 @@ import ctypes
 from time import sleep
 import numpy as np
 import matplotlib.pyplot as plt
-sys.path.append('./3rd_Party/Vimba_4.2/VimbaPython/Source')
-import vimba
+
 from dataclasses import dataclass
 from zynq_client import zynq_tcp_client
+from mako_camera import mako_camera
 
 
 
@@ -100,46 +100,15 @@ class FrequencyTones:
 # gmoog = GM_python()
 zclient = zynq_tcp_client()
 
+mako = mako_camera(ipaddr=tweezer_moncam_ip, settingAddr=tweezer_moncam_setting)
+img_avg = mako.getAvgImages()
 
-imgs = []
-def handler(cam: vimba.Camera, frame: vimba.Frame):
-    print('Frame acquired : {} '. format(frame), flush=True)
-    imgs.append(frame.as_numpy_ndarray())
-    cam.queue_frame(frame)
-
-def setup_camera(cam: vimba.Camera):
-    with cam:
-        # Try to adjust GeV packet size. This Feature is only available for GigE - Cameras.
-        try:
-            cam.load_settings(tweezer_moncam_setting, vimba.PersistType.NoLUT)
-            cam.GVSPAdjustPacketSize.run()
-            while not cam.GVSPAdjustPacketSize.is_done():
-                pass
-            cam.TriggerSelector.set('FrameStart')
-            cam.TriggerMode.set('On')
-            cam.TriggerSource.set('Software')
-            cam.AcquisitionMode.set('Continuous')
-        except (AttributeError, vimba.VimbaFeatureError, )  as err:
-            print(err)
-            print(err.args)
-
-# vimba related example is at C:\Users\Public\Documents\Allied Vision\Vimba_4.2
-with vimba.Vimba.get_instance() as vba:
-    # with vba.get_camera_by_id(tweezer_moncam_ip) as cam:
-    cam = vba.get_camera_by_id(tweezer_moncam_ip)
-    print(cam.get_model())
-    setup_camera(cam)
-    cam.start_streaming(handler=handler)        
-    for i in range(10):
-        cam.TriggerSoftware.run()
-        sleep(0.1)
-    cam.stop_streaming()
         
 
-plt.pcolormesh(np.array(imgs).mean(axis=0)[:,:,0])
+plt.pcolormesh(img_avg)
 plt.show()
 
-print("Vimba version: {:s}".format(vimba.__version__))
+# print("Vimba version: {:s}".format(vimba.__version__))
 # ft0 = FrequencyTones(0, 9, 98, 25.2/9, 28.3)
 # ft1 = FrequencyTones(0, 9, 98, 25.2/9, 28.3)
 # ft0.print_GM_Command()
