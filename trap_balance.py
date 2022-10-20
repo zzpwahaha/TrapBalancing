@@ -9,17 +9,33 @@ from frequency_tones import FrequencyTones
 from zynq_client import zynq_tcp_client
 from mako_camera import mako_camera
 
+sys.path.append('C:\Chimera\B240_data_analysis\Library\ChimeraGenTools')
+from AnalysisHelpers import findAtomLocs, getRawAtomImages
+
 tweezer_moncam_ip = '10.10.0.8'
 tweezer_moncam_setting = './tweezer_monitor.xml'
 
 # gmoog = GM_python()
-zclient = zynq_tcp_client()
-mako = mako_camera(ipaddr=tweezer_moncam_ip, settingAddr=tweezer_moncam_setting)
-img_avg = mako.getAvgImages()
-plt.pcolormesh(img_avg)
+# zclient = zynq_tcp_client()
+# mako = mako_camera(ipaddr=tweezer_moncam_ip, settingAddr=tweezer_moncam_setting)
+# img_avg = mako.getAvgImages(time_interval = 0.05)
+
+# np.savetxt('img_avg_test.txt',img_avg)
+img_avg = np.loadtxt('img_avg_test.txt')
+# fig, ax = plt.subplots()
+# ax.pcolormesh(img_avg)
+# ax.set_aspect(1)
 plt.show()
-
-
+# window = [0,0,img_avg.shape[1], img_avg.shape[0]]
+# maximaLocs = findAtomLocs(img_avg, window=None, neighborhood_size=90., threshold=15, sort='MatchArray', debug_plot=True)
+maximaLocs = findAtomLocs(img_avg, window=None, neighborhood_size=95., threshold=16, sort='MatchArray', debug_plot=False)
+# plt.show()
+print(maximaLocs)
+idv_atom_img = getRawAtomImages(img_avg, maximaLocs, boundary = [-10,-10,10,10])
+fig, ax = plt.subplots()
+ax.pcolormesh(idv_atom_img[0])
+ax.set_aspect(1)
+plt.show()
 
 
 '''

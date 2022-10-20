@@ -18,7 +18,8 @@
     "gitlens.defaultDateFormat": null,
     "breadcrumbs.enabled": false,
     "python.analysis.extraPaths": [
-        "./3rd_Party/Vimba_4.2/VimbaPython/Source"
+        "./3rd_Party/Vimba_4.2/VimbaPython/Source",
+        "C:/Chimera/B240_data_analysis/Library/ChimeraGenTools"
     ]
         // see https://donjayamanne.github.io/pythonVSCodeDocs/docs/autocomplete/
 }
