@@ -3,6 +3,7 @@ sys.path.append('./3rd_Party/Vimba_4.2/VimbaPython/Source')
 from time import sleep
 import vimba
 import numpy as np
+import matplotlib.pyplot as plt
 
 class mako_camera:
     def __init__(self, ipaddr, settingAddr = None):
@@ -12,12 +13,13 @@ class mako_camera:
         with vimba.Vimba.get_instance() as vba:
             with vba.get_camera_by_id(self.ip) as cam:
                 self.cam = cam
-                print("Get camera: ",self.cam.get_model())
+                self.cam_model = self.cam.get_model()
+                print("Get camera: ",self.cam_model)
         self.setup_camera()
 
 
     def __hanlder(self, cam: vimba.Camera, frame: vimba.Frame):
-        print('Frame acquired : {} '. format(frame), flush=True)
+        # print('Frame acquired : {} '. format(frame), flush=True)
         self.imgs.append(frame.as_numpy_ndarray())
         cam.queue_frame(frame)
 
@@ -51,10 +53,14 @@ class mako_camera:
                     cam.TriggerSoftware.run()
                     sleep(time_interval)
                 cam.stop_streaming()
-
+        print(f'{num:d} Frame acquired from {self.cam_model:s}', flush=True)
         return np.array(self.imgs).mean(axis=0)[:,:,0]
 
 if __name__ == '__main__':
     mako = mako_camera(ipaddr="10.10.0.8")
     img_avg = mako.getAvgImages()
     print(img_avg)
+    fig, ax = plt.subplots()
+    ax.pcolormesh(img_avg)
+    ax.set_aspect(1)
+    plt.show()

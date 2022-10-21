@@ -69,3 +69,29 @@ if __name__ == "__main__":
     client.connect()
     client._triggerGigamoogWithTweezersOn()
     client.disconnect()
+
+'''
+received "DIOseq_3                                                        "
+dev =  DIOseq
+num_bytes =  84
+
+ snapshot 0
+b't00002710_b00006B00000000D0\x00'
+
+ snapshot 1
+b't00002774_b01006B00000000D0\x00'
+
+ snapshot 2
+b't000027D8_b00006B00000000D0\x00'
+DIO points
+b't00002710_b00006B00000000D0\x00'
+b't00002774_b01006B00000000D0\x00'
+b't000027D8_b00006B00000000D0\x00'
+GPIO_seq_point(address =  0 ,time= 10000 ,outputA =  0x000000d0 ,outputB =  0x00006b00 )
+GPIO_seq_point(address =  1 ,time= 10100 ,outputA =  0x000000d0 ,outputB =  0x01006b00 )
+GPIO_seq_point(address =  2 ,time= 10200 ,outputA =  0x000000d0 ,outputB =  0x00006b00 )
+GPIO_seq_point(address =  3 ,time= 0 ,outputA =  0x00000000 ,outputB =  0x00000000 )
+mod enabled from zynq
+set_bit 1
+MOD IS ON, CAN RUN SEQUENCER FOR EXPERIMENT OR CHANGE DAC, TTL NOW
+'''

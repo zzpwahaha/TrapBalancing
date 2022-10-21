@@ -22,8 +22,8 @@ class GM_python(object):
 
         self.obj = gmoogLib.gm_new()
 
-    def test(self):
-        gmoogLib.gm_test(self.obj)
+    # def test(self):
+    #     gmoogLib.gm_test(self.obj)
 
     def zeroAll(self):
         gmoogLib.gm_zeroAll(self.obj)
