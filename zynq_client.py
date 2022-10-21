@@ -66,9 +66,7 @@ class zynq_tcp_client:
 
 if __name__ == "__main__":
     client = zynq_tcp_client()
-    client.connect()
-    client._triggerGigamoogWithTweezersOn()
-    client.disconnect()
+    client.triggerGigamoog()
 
 '''
 received "DIOseq_3                                                        "

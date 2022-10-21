@@ -26,6 +26,7 @@ class FrequencyTones:
 
         self.max_amp = max_amp
         print(f"NOTICE: the maximum amplitude is set to {self.max_amp}")
+        self.checkAmplitudeLimit()
 
     def print_GM_Command(self):
         for ind in self.tone_idx:
@@ -101,7 +102,7 @@ class FrequencyTones:
 
 if __name__ == '__main__':
     ft0 = FrequencyTones(0, 9, 98, 25.2/9, 28.3)
-    ft1 = FrequencyTones(0, 9, 98, 25.2/9, 28.3)
+    ft1 = FrequencyTones(1, 9, 98, 25.2/9, 28.3)
     ft0.print_GM_Command()
     print()
     ft1.print_GM_Command()

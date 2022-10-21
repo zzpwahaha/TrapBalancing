@@ -1,3 +1,4 @@
+from time import sleep
 from frequency_tones import FrequencyTones
 import numpy as np
 import matplotlib.pyplot as plt
@@ -93,16 +94,18 @@ class TweezerGrid2D:
             if not _:
                 raise RuntimeError("The limit check failed the second time, which shouldn't happen. Aborted.")
 
-        self.freq_axis0.updateOptimalAmps(amp_D0)
-        self.freq_axis1.updateOptimalAmps(amp_D1)
+        self.freq_axis0.updateOptimalAmps(ampoutD0)
+        self.freq_axis1.updateOptimalAmps(ampoutD1)
 
         self.freq_axis0.print_GM_Command()
         self.freq_axis1.print_GM_Command()
 
+        self.gmoog.zeroAll()
+        self.freq_axis0.writeToGIGAMOOG(self.gmoog)
+        self.freq_axis1.writeToGIGAMOOG(self.gmoog)
+        self.gmoog.endMessage()
+
         return self.freq_axis0.opt_amps, self.freq_axis1.opt_amps, maxerr
 
-        # self.gmoog.zeroAll()
-        # self.freq_axis0.writeToGIGAMOOG(self.gmoog)
-        # self.freq_axis1.writeToGIGAMOOG(self.gmoog)
-        # self.gmoog.endMessage()
+
 
