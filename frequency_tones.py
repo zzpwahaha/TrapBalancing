@@ -74,6 +74,11 @@ class FrequencyTones:
         # perform the last check before writing it to the gigamoog, last chance
         if self.checkAmplitudeLimit():
             gmoog.setDAC(0+self.DACoffset, self.num_tones, seq(*self.freqs), seq(*self.opt_amps), seq(*self.phase_degs))
+            print(r"DACoffset = ", 0+self.DACoffset, 
+                "\nnum_tones = ", self.num_tones, 
+                "\nfreqs = ", np.array2string(self.freqs, separator=","), 
+                "\nopt_amps = ", np.array2string(self.opt_amps, separator=","), 
+                "\nphase_degs = ", np.array2string(self.phase_degs, separator=","))
         else:
             raise RuntimeError("Failed to pass the amplitude limit check before setting the GIGAMOOG!!!! Aborted.")
 

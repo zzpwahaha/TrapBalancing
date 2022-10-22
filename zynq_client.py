@@ -1,10 +1,13 @@
 import socket
 import sys
+from time import sleep
 
 # 2022/10/18
 trg_command = [b't00002710_b00006B00000000D0',
                b't00002774_b01006B00000000D0',
                b't000027D8_b00006B00000000D0']
+
+static_output_command = [b't00002710_b00006B00000000D0']
 
 
 class zynq_tcp_client:
@@ -18,7 +21,13 @@ class zynq_tcp_client:
         self.ddsByteLen = 46
 
     def connect(self):
-        self.sock.connect(self.server_address)
+        try:
+            self.sock.connect(self.server_address)
+        except OSError as err:
+            # print("Warning: error occured during connecting to zynq: ",err.strerror)
+            # print("Try to reset the socket and reconnect. This should only happen when the connection is closed and the self.sock need to be re-initialize before connect.") 
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.connect(self.server_address)
 
     def _sendMessage(self, message, length):
         messagePad = message.ljust(length, b'\0')
@@ -31,6 +40,16 @@ class zynq_tcp_client:
                 self._sendMessage(_cmd, self.dioByteLen)
             self._sendMessage(b'end_0', self.connectByteLen)
             self._sendMessage(b'trigger', self.connectByteLen)
+            self._sendMessage(b'end_0', self.connectByteLen)
+
+            self._sendMessage(f'DIOseq_{len(static_output_command):d}'.encode('utf-8'), self.connectByteLen)
+            for _cmd in static_output_command:
+                self._sendMessage(_cmd, self.dioByteLen)
+            self._sendMessage(b'end_0', self.connectByteLen)
+            self._sendMessage(b'trigger', self.connectByteLen)
+            self._sendMessage(b'end_0', self.connectByteLen)
+
+
         except:
             print('write failed')
 
@@ -67,6 +86,8 @@ class zynq_tcp_client:
 if __name__ == "__main__":
     client = zynq_tcp_client()
     client.triggerGigamoog()
+    # sleep(1)
+    # client.triggerGigamoog()
 
 '''
 received "DIOseq_3                                                        "

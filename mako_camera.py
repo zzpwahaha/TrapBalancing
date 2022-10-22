@@ -44,17 +44,20 @@ class mako_camera:
                     print(err)
                     print(err.args)
 
-    def getAvgImages(self, num = 10, time_interval = 0.1):
-        self.imgs = []
-        with vimba.Vimba.get_instance() as vba:
-            with self.cam as cam:
-                cam.start_streaming(handler=self)        
-                for i in range(num):
-                    cam.TriggerSoftware.run()
-                    sleep(time_interval)
-                cam.stop_streaming()
-        print(f'{num:d} Frame acquired from {self.cam_model:s}', flush=True)
-        return np.array(self.imgs).mean(axis=0)[:,:,0]
+    def getAvgImages(self, num = 10, time_interval = 0.1, debug = False):
+        if not debug:
+            self.imgs = []
+            with vimba.Vimba.get_instance() as vba:
+                with self.cam as cam:
+                    cam.start_streaming(handler=self)        
+                    for i in range(num):
+                        cam.TriggerSoftware.run()
+                        sleep(time_interval)
+                    cam.stop_streaming()
+            print(f'{num:d} Frame acquired from {self.cam_model:s}', flush=True)
+            return np.array(self.imgs).mean(axis=0)[:,:,0]
+        else:
+            return np.loadtxt("./img_avg_test.txt")
 
 if __name__ == '__main__':
     mako = mako_camera(ipaddr="10.10.0.8")

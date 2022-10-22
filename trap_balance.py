@@ -37,7 +37,7 @@ def trap_balancing():
     optimizer = TweezerGrid2D(freq_axis0=freq_tones0,freq_axis1=freq_tones1, gmoog=gmoog)
 
 
-    img_avg = mako.getAvgImages(num = 20, time_interval = 0.05)
+    img_avg = mako.getAvgImages(num = 20, time_interval = 0.05, debug=True)
     maximaLocs = findAtomLocs(img_avg, window=None, neighborhood_size=95., threshold=16, sort='MatchArray', debug_plot=False)
     print(f"Found {len(maximaLocs):d} maximas", maximaLocs)
 
@@ -50,28 +50,32 @@ def trap_balancing():
 
     print("Start to balance the trap ... ")
 
-    max_steps = 10
+    max_steps = 3
     current_step = 0
     err = 10
+    # zclient.connect()
     while (err > 2.5) and (current_step < max_steps):
         print(f"****************************************step {current_step:d} start***************************************************")
         print(f"Performing optimization with step: {current_step:d}, error is {err:.2f}")
-        img_avg = mako.getAvgImages(num = 20, time_interval = 0.05)
+        img_avg = mako.getAvgImages(num = 20, time_interval = 0.05, debug=True)
         twz_amps = getTweezerAmplitudes(img_avg, maximaLocs, amp_option='fit', showResult=False)
         trap_depth_mapped = trap_depth / twz_amps0 * twz_amps
         if (err > 10):
             dac0_amp, dac1_amp, err = optimizer.getGMAmplitudes(
-                trap_depth=unp.nominal_values(trap_depth_mapped), method='mean', ampscale=0.02, showPlot=False)
+                trap_depth=unp.nominal_values(trap_depth_mapped), method='mean', ampscale=0*0.02, showPlot=False)
         else:
             dac0_amp, dac1_amp, err = optimizer.getGMAmplitudes(
-                trap_depth=unp.nominal_values(trap_depth_mapped), method='randomCross', ampscale=0.001, showPlot=False)
-        sleep(0.1)
+                trap_depth=unp.nominal_values(trap_depth_mapped), method='randomCross', ampscale=0*0.001, showPlot=False)
+        sleep(0.3)
+        # zclient._triggerGigamoogWithTweezersOn()
         zclient.triggerGigamoog()
-        current_step += 1;
         print(f"****************************************step {current_step:d} end***************************************************")
+        print("Max error: ", err)
         print("dac0 amplitude: ", dac0_amp)
         print("dac1 amplitude: ", dac1_amp)
-        sleep(1)
+        current_step += 1;
+        sleep(2)
+    # zclient.disconnect()
 
 
 if __name__ == '__main__':
