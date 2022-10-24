@@ -40,12 +40,14 @@ def trap_balancing():
     freq_tones0.writeToGIGAMOOG(gmoog)
     freq_tones1.writeToGIGAMOOG(gmoog)
     gmoog.endMessage()
+    zclient.triggerGigamoog()
     sleep(1)
 
     optimizer = TweezerGrid2D(freq_axis0=freq_tones0,freq_axis1=freq_tones1, gmoog=gmoog)
     drawer = realTimeDrawer()
 
     img_avg = mako.getAvgImages(num = 20, time_interval = 0.05, debug=False)
+    # np.savetxt('./test/img_avg_init.txt',img_avg)
     maximaLocs = findAtomLocs(img_avg, window=None, neighborhood_size=95., threshold=16, sort='MatchArray', debug_plot=False)
     print(f"Found {len(maximaLocs):d} maximas", maximaLocs)
 
@@ -75,10 +77,10 @@ def trap_balancing():
         trap_depth_mapped = trap_depth / twz_amps0 * twz_amps
         if (err > 13):
             dac0_amp, dac1_amp, allerr = optimizer.getGMAmplitudes(
-                trap_depth=unp.nominal_values(trap_depth_mapped), method='randomCross', ampscale=1, showPlot=False)
+                trap_depth=unp.nominal_values(trap_depth_mapped), method='randomCross', ampscale=2, showPlot=False)
         else:
             dac0_amp, dac1_amp, allerr = optimizer.getGMAmplitudes(
-                trap_depth=unp.nominal_values(trap_depth_mapped), method='randomCross', ampscale=2, showPlot=False)
+                trap_depth=unp.nominal_values(trap_depth_mapped), method='randomCross', ampscale=4, showPlot=False)
         sleep(0.1)
         # zclient._triggerGigamoogWithTweezersOn()
         zclient.triggerGigamoog()
@@ -108,6 +110,24 @@ def trap_balancing():
     
 
 def evaluateTrapDepthResult():
+    # dac0_opt_amp = [30.33, 26.05, 22.33, 27.06, 28.60, 30.50, 29.82, 23.84, 27.93]
+    # dac1_opt_amp = [22.08, 23.89, 28.33, 30.50, 28.85, 25.17, 22.23, 26.20, 30.38]
+
+    # gmoog = GM_python()
+    # zclient = zynq_tcp_client()
+    
+    # freq_tones0 = FrequencyTones(0, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
+    # freq_tones0.set_initial_amps(dac0_opt_amp)
+    # freq_tones1 = FrequencyTones(1, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
+    # freq_tones1.set_initial_amps(dac1_opt_amp)
+
+    # # set the amplitude to init amp before any optimization, so that it is indepedent of previous run
+    # gmoog.zeroAll()
+    # freq_tones0.writeToGIGAMOOG(gmoog)
+    # freq_tones1.writeToGIGAMOOG(gmoog)
+    # gmoog.endMessage()
+
+
     mako = mako_camera(ipaddr=tweezer_moncam_ip, settingAddr=tweezer_moncam_setting)
     img_avg0 = mako.getAvgImages(debug=True)
     maximaLocs = findAtomLocs(img_avg0, window=None, neighborhood_size=95., threshold=16, sort='MatchArray', debug_plot=False)
@@ -116,7 +136,10 @@ def evaluateTrapDepthResult():
 
     img_avg = mako.getAvgImages(num = 20, time_interval = 0.05, debug=False)
     twz_amps = getTweezerAmplitudes(img_avg, maximaLocs, amp_option='fit', showResult=False)
-    
+    # plt.plot(unp.nominal_values(twz_amps0))
+    # plt.plot(unp.nominal_values(twz_amps))
+    # plt.show()
+
     trap_depth, trap_depth_uncertainty = getTrapDepthData(trap_data_file=trap_depth_datafile)
     trap_depth_mapped = unp.nominal_values(trap_depth / twz_amps0 * twz_amps)
     # trap_depth_mapped = unp.nominal_values(trap_depth_mapped)

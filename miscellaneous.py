@@ -101,3 +101,42 @@ class realTimeDrawer():
         # loop until all UI events
         # currently waiting have been processed
         self.fig.canvas.flush_events()
+
+
+ginput = 'set DAC0 0  30.33  86.80  20.00\
+set DAC0 1  26.05  89.60  80.00\
+set DAC0 2  22.33  92.40 180.00\
+set DAC0 3  27.06  95.20 320.00\
+set DAC0 4  28.60  98.00 140.00\
+set DAC0 5  30.50 100.80   0.00\
+set DAC0 6  29.82 103.60 260.00\
+set DAC0 7  23.84 106.40 200.00\
+set DAC0 8  27.93 109.20 180.00\
+set DAC1 0  22.08  86.80  20.00\
+set DAC1 1  23.89  89.60  80.00\
+set DAC1 2  28.33  92.40 180.00\
+set DAC1 3  30.50  95.20 320.00\
+set DAC1 4  28.85  98.00 140.00\
+set DAC1 5  25.17 100.80   0.00\
+set DAC1 6  22.23 103.60 260.00\
+set DAC1 7  26.20 106.40 200.00\
+set DAC1 8  30.38 109.20 180.00'
+def getAmplitudeFromGigamoogInput(ginput:str = ginput):
+    ginput = list(filter(None, ginput.split('set DAC')))
+    ginput = [list(filter(None, _ginput.split(' '))) for _ginput in ginput]
+    amp = []
+    for gi in ginput:
+        amp.append(gi[2])
+    
+    for idx, _amp in enumerate(amp):
+        print(f"{_amp:s}, ", end='')
+        if idx == 8:
+            print(" ")
+
+if __name__ == '__main__':
+    # trap_depth_datafile = 'trap_depth_2022-10-19.h5'
+    # trap_depth, trap_depth_uncertainty = getTrapDepthData(trap_data_file=trap_depth_datafile)
+    # plt.plot(trap_depth.reshape(9,9)[::-1,:].flatten())
+    # plt.show()
+
+    getAmplitudeFromGigamoogInput()
