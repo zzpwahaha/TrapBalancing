@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import numpy as np
 import matplotlib.pyplot as plt
-from GMoogProxy import GM_python
+# from GMoogProxy import GM_python
 import ctypes
 
 
@@ -28,6 +28,13 @@ class FrequencyTones:
         print(f"NOTICE: the maximum amplitude is set to {self.max_amp}")
         self.checkAmplitudeLimit()
 
+    def get_GM_Command(self):
+        command = []
+        for ind in self.tone_idx:
+            command.append('set DAC{:d} {:d} {:6.2f} {:6.2f} {:6.2f}'.format(
+                0+self.DACoffset, ind, self.opt_amps[ind], self.freqs[ind], self.phase_degs[ind]))
+        return command
+
     def print_GM_Command(self):
         for ind in self.tone_idx:
             print('set DAC{:d} {:d} {:6.2f} {:6.2f} {:6.2f}'.format(
@@ -39,6 +46,11 @@ class FrequencyTones:
 
         self.init_amps = init_amps
         self.opt_amps = self.init_amps.copy()
+
+    def _set_frequencies(self, freqs):
+        if len(freqs) != self.num_tones:
+            raise ValueError(f"Input frequencies has different size {len(freqs):d} as the num of freq tones {self.num_tones:d}")
+        self.freqs = freqs
 
     def updateOptimalAmps(self, opt_amps):
         self.opt_amps = opt_amps
@@ -69,8 +81,8 @@ class FrequencyTones:
         # or can use np.putmask(amps, amps>self.max_amp, self.max_amp)
         return passed
 
-    def writeToGIGAMOOG(self, gmoog: GM_python):
-        seq = ctypes.c_float * self.num_tones
+    def writeToGIGAMOOG(self, gmoog):
+        seq = ctypes.c_double * self.num_tones
         # perform the last check before writing it to the gigamoog, last chance
         if self.checkAmplitudeLimit():
             gmoog.setDAC(0+self.DACoffset, self.num_tones, seq(*self.freqs), seq(*self.opt_amps), seq(*self.phase_degs))
@@ -106,8 +118,18 @@ class FrequencyTones:
         plt.show()
 
 if __name__ == '__main__':
-    ft0 = FrequencyTones(0, 9, 98, 25.2/9, 28.3)
-    ft1 = FrequencyTones(1, 9, 98, 25.2/9, 28.3)
+    MAX_AMPLITUDE = 30.5
+    dac0_init_amp = np.array([27.92, 28.22, 28.32, 28.37, 28.47, 28.62, 28.92, 29.07, 29.17])
+    dac1_init_amp = np.array([26.92, 27.32, 27.42, 27.57, 27.82, 28.02, 28.42, 28.62, 28.87])
+    
+    ft0 = FrequencyTones(0, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
+    ft0._set_frequencies([86.800003, 89.599998, 92.400002, 95.199997, 98, 100.800003, 103.599998, 106.400002, 109.199997])
+    ft0.set_initial_amps(dac0_init_amp)
+    ft1 = FrequencyTones(1, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
+    ft1._set_frequencies([86.800003, 89.599998, 92.400002, 95.199997, 98, 100.800003, 103.599998, 106.400002, 109.199997])
+    ft1.set_initial_amps(dac1_init_amp)
+
+
     ft0.print_GM_Command()
     print()
     ft1.print_GM_Command()

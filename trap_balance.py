@@ -1,3 +1,4 @@
+from cProfile import label
 import sys
 import ctypes
 from time import sleep
@@ -33,50 +34,103 @@ def trap_balancing():
     freq_tones0.set_initial_amps(dac0_init_amp)
     freq_tones1 = FrequencyTones(1, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
     freq_tones1.set_initial_amps(dac1_init_amp)
-    
+
+    # set the amplitude to init amp before any optimization, so that it is indepedent of previous run
+    gmoog.zeroAll()
+    freq_tones0.writeToGIGAMOOG(gmoog)
+    freq_tones1.writeToGIGAMOOG(gmoog)
+    gmoog.endMessage()
+    sleep(1)
+
     optimizer = TweezerGrid2D(freq_axis0=freq_tones0,freq_axis1=freq_tones1, gmoog=gmoog)
+    drawer = realTimeDrawer()
 
-
-    img_avg = mako.getAvgImages(num = 20, time_interval = 0.05, debug=True)
+    img_avg = mako.getAvgImages(num = 20, time_interval = 0.05, debug=False)
     maximaLocs = findAtomLocs(img_avg, window=None, neighborhood_size=95., threshold=16, sort='MatchArray', debug_plot=False)
     print(f"Found {len(maximaLocs):d} maximas", maximaLocs)
 
     trap_depth, trap_depth_uncertainty = getTrapDepthData(trap_data_file=trap_depth_datafile)
     print("Loaded trap depth:" , trap_depth)
-    print(f"The maximum relative trap depth uncertainty is {np.max(trap_depth_uncertainty/trap_depth):2.2e}")
-    
+    print(f"The maximum relative trap depth uncertainty is {np.max(trap_depth_uncertainty/trap_depth)*100:2.2f}%")
+
+    # get the initial tweezer peak with the inital GM amplitude
     twz_amps0 = getTweezerAmplitudes(img_avg, maximaLocs, amp_option='fit', showResult=False)
     print("Calculated tweezer amplitudes", twz_amps0)
 
     print("Start to balance the trap ... ")
 
-    max_steps = 3
+    max_steps = 200
     current_step = 0
-    err = 10
-    # zclient.connect()
+    err = np.abs((trap_depth - trap_depth.mean()) / trap_depth.mean()).max() * 100
+    err_store = []
+    
+    with open('./result/result.txt', 'w') as f:
+        f.close()
+
     while (err > 2.5) and (current_step < max_steps):
         print(f"****************************************step {current_step:d} start***************************************************")
         print(f"Performing optimization with step: {current_step:d}, error is {err:.2f}")
-        img_avg = mako.getAvgImages(num = 20, time_interval = 0.05, debug=True)
+        img_avg = mako.getAvgImages(num = 20, time_interval = 0.05, debug=False)
         twz_amps = getTweezerAmplitudes(img_avg, maximaLocs, amp_option='fit', showResult=False)
         trap_depth_mapped = trap_depth / twz_amps0 * twz_amps
-        if (err > 10):
-            dac0_amp, dac1_amp, err = optimizer.getGMAmplitudes(
-                trap_depth=unp.nominal_values(trap_depth_mapped), method='mean', ampscale=0*0.02, showPlot=False)
+        if (err > 13):
+            dac0_amp, dac1_amp, allerr = optimizer.getGMAmplitudes(
+                trap_depth=unp.nominal_values(trap_depth_mapped), method='randomCross', ampscale=1, showPlot=False)
         else:
-            dac0_amp, dac1_amp, err = optimizer.getGMAmplitudes(
-                trap_depth=unp.nominal_values(trap_depth_mapped), method='randomCross', ampscale=0*0.001, showPlot=False)
-        sleep(0.3)
+            dac0_amp, dac1_amp, allerr = optimizer.getGMAmplitudes(
+                trap_depth=unp.nominal_values(trap_depth_mapped), method='randomCross', ampscale=2, showPlot=False)
+        sleep(0.1)
         # zclient._triggerGigamoogWithTweezersOn()
         zclient.triggerGigamoog()
+
+        err_store.append(allerr)
+        err = np.abs(allerr).max()
         print(f"****************************************step {current_step:d} end***************************************************")
         print("Max error: ", err)
         print("dac0 amplitude: ", dac0_amp)
         print("dac1 amplitude: ", dac1_amp)
+        drawer.updateXY(np.arange(allerr.size), allerr.flatten(), type='trap_depth')
+        drawer.updateXY([np.arange(dac0_amp.size), np.arange(dac0_amp.size)], [dac0_amp, dac1_amp], type='dac_output')
+        drawer.updateXY([np.arange(current_step+1), np.arange(current_step+1)], [np.max(np.abs(err_store), axis=(1,2)), np.std(err_store, axis=(1,2))], type='history')
+        drawer.fig.suptitle(f"Step #{current_step+1:d}")
+
+        with open('./result/result.txt', 'a') as f:
+            f.write(f"Step #{current_step+1:d}\r\n")
+            for cmd in freq_tones0.get_GM_Command():
+                f.write(cmd+"\r")
+            for cmd in freq_tones1.get_GM_Command():
+                f.write(cmd+"\r")
+            f.write('\r\n')
+
         current_step += 1;
-        sleep(2)
-    # zclient.disconnect()
+        sleep(1)
+    input("Press Enter to exit...")
+    
+
+def evaluateTrapDepthResult():
+    mako = mako_camera(ipaddr=tweezer_moncam_ip, settingAddr=tweezer_moncam_setting)
+    img_avg0 = mako.getAvgImages(debug=True)
+    maximaLocs = findAtomLocs(img_avg0, window=None, neighborhood_size=95., threshold=16, sort='MatchArray', debug_plot=False)
+    twz_amps0 = getTweezerAmplitudes(img_avg0, maximaLocs, amp_option='fit', showResult=False)
+    # twz_amps0 = unp.nominal_values(twz_amps0)
+
+    img_avg = mako.getAvgImages(num = 20, time_interval = 0.05, debug=False)
+    twz_amps = getTweezerAmplitudes(img_avg, maximaLocs, amp_option='fit', showResult=False)
+    
+    trap_depth, trap_depth_uncertainty = getTrapDepthData(trap_data_file=trap_depth_datafile)
+    trap_depth_mapped = unp.nominal_values(trap_depth / twz_amps0 * twz_amps)
+    # trap_depth_mapped = unp.nominal_values(trap_depth_mapped)
+    allerr = (trap_depth_mapped.reshape([9,9])[::-1,:] - trap_depth_mapped.mean()) / trap_depth_mapped.mean() * 100
+    print("All errors: ", allerr)
+    plt.plot(np.arange(allerr.size), allerr.flatten(), label='current')
+    plt.plot(np.arange(allerr.size), (trap_depth.reshape([9,9])[::-1,:] - trap_depth.mean()).flatten()/trap_depth.mean()*100, label='initial')
+    plt.legend()
+    plt.show()
+
+
+
 
 
 if __name__ == '__main__':
     trap_balancing()
+    # evaluateTrapDepthResult()

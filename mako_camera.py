@@ -57,7 +57,7 @@ class mako_camera:
             print(f'{num:d} Frame acquired from {self.cam_model:s}', flush=True)
             return np.array(self.imgs).mean(axis=0)[:,:,0]
         else:
-            return np.loadtxt("./img_avg_test.txt")
+            return np.loadtxt("./test/img_avg_test.txt")
 
 if __name__ == '__main__':
     mako = mako_camera(ipaddr="10.10.0.8")

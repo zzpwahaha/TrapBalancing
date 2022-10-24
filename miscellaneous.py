@@ -37,3 +37,67 @@ def getTrapDepthData(trap_data_file):
     trap_depth = trap_depth[::-1]
     trap_depth_uncertainty = trap_depth_uncertainty[::-1]
     return trap_depth, trap_depth_uncertainty
+
+
+class realTimeDrawer():
+    def __init__(self):
+        plt.ion()
+        # here we are creating sub plots
+        self.fig, self._axes = plt.subplots(figsize=[18,6], ncols=3)
+        self._all_plot_types = ['trap_depth', 'dac_output', 'history']
+        self.axes = {plot_type: ax for plot_type, ax in zip(self._all_plot_types, self. _axes)}
+
+        self.axes['trap_depth'].set_xlabel('trap label')
+        self.axes['trap_depth'].set_ylabel('trap depth mapped')
+
+        self.axes['history'].set_xlabel('num of steps')
+        self.axes['history'].set_ylabel('max err')
+
+        self.axes['dac_output'].set_xlabel('dac channel')
+        self.axes['dac_output'].set_ylabel('output amp')
+
+    def updateXY(self, x, y, type = 'trap_depth'):
+        if type=='trap_depth':
+            if not self.axes[type].lines:
+                self.axes[type].plot(x,y,label='current')
+                self.axes[type].plot(x,y,label='initial')
+                self.axes[type].legend()
+            # updating data values
+            self.axes[type].lines[0].set_xdata(x)
+            self.axes[type].lines[0].set_ydata(y)
+
+        if type == 'dac_output':
+            if not self.axes[type].lines:
+                self.axes[type].plot(x[0],y[0], label='dac0')
+                self.axes[type].plot(x[1],y[1], label='dac1')
+                self.axes[type].plot(x[0],y[0], label='initial dac0')
+                self.axes[type].plot(x[1],y[1], label='initial dac1')
+                self.axes[type].legend()
+
+            for _x,_y,_l in zip(x,y,self.axes[type].lines):
+                _l.set_xdata(_x)
+                _l.set_ydata(_y)
+
+        if type == 'history':
+            if not self.axes[type].lines:
+                self.axes[type].plot([],[], label='max')
+                self.axes[type].plot([],[], label='std')
+                self.axes[type].legend()
+
+            for _x,_y,_l in zip(x,y,self.axes[type].lines):
+                _l.set_xdata(_x)
+                _l.set_ydata(_y)
+
+
+        # recompute the ax.dataLim
+        self.axes[type].relim()
+        # update ax.viewLim using the new dataLim
+        self.axes[type].autoscale_view()
+
+        # drawing updated values
+        self.fig.canvas.draw()
+    
+        # This will run the GUI event
+        # loop until all UI events
+        # currently waiting have been processed
+        self.fig.canvas.flush_events()

@@ -23,18 +23,16 @@ class GM_python(object):
         gmoogLib.gm_endMessage.restype = ctypes.c_void_p
 
         gmoogLib.gm_setDAC.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.POINTER(
-            ctypes.c_float), ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float)]
+            ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double)]
         gmoogLib.gm_setDAC.restype = ctypes.c_void_p
 
         gmoogLib.gm_zeroAndSetDAC.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.POINTER(
-            ctypes.c_float), ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float)]
+            ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double)]
         gmoogLib.gm_zeroAndSetDAC.restype = ctypes.c_void_p
 
         gmoogLib.gm_zeroAndSetTwoDACs.argtypes = [ctypes.c_void_p, 
-            ctypes.c_int, ctypes.c_int, ctypes.POINTER(
-            ctypes.c_float), ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float),
-            ctypes.c_int, ctypes.c_int, ctypes.POINTER(
-            ctypes.c_float), ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float)]
+            ctypes.c_int, ctypes.c_int, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double),
+            ctypes.c_int, ctypes.c_int, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double)]
         gmoogLib.gm_zeroAndSetTwoDACs.restype = ctypes.c_void_p
 
         self.obj = gmoogLib.gm_new()
@@ -58,24 +56,24 @@ def test_with_bare_command():
     DACoffset =  0
     num_tones =  9
 
-    freqs0 =  np.array([ 86.8, 89.6, 92.4, 95.2, 98. ,100.8,103.6,106.4,109.2])
-    opt_amps0 =  np.array([27.92,28.22,28.32,28.37,28.47,28.62,28.92,29.07,29.17])
-    phase_degs0 =  np.array([ 20., 80.,180.,320.,140.,  0.,260.,200.,180.]) #/180*3.14
+    freqs0 =  np.array([ 86.8, 89.6, 92.4, 95.2, 98. ,100.8,103.6,106.4,109.2], dtype= np.float64)
+    opt_amps0 =  np.array([27.92,28.22,28.32,28.37,28.47,28.62,28.92,29.07,29.17], dtype=np.float64)
+    phase_degs0 =  np.array([ 20., 80.,180.,320.,140.,  0.,260.,200.,180.], dtype=np.float64) #/180*3.14
 
-    freqs1 =  np.array([ 86.8, 89.6, 92.4, 95.2, 98. ,100.8,103.6,106.4,109.2])
-    opt_amps1 =  np.array([26.92,27.32,27.42,27.57,27.82,28.02,28.42,28.62,28.87])
-    phase_degs1 =  np.array([ 20., 80.,180.,320.,140.,  0.,260.,200.,180.]) #/180*3.14
+    freqs1 =  np.array([ 86.8, 89.6, 92.4, 95.2, 98. ,100.8,103.6,106.4,109.2], dtype=np.float64)
+    opt_amps1 =  np.array([26.92,27.32,27.42,27.57,27.82,28.02,28.42,28.62,28.87], dtype=np.float64)
+    phase_degs1 =  np.array([ 20., 80.,180.,320.,140.,  0.,260.,200.,180.], dtype=np.float64) #/180*3.14
 
     gmoog = GM_python()
     client = zynq_tcp_client()
 
-    seq = ctypes.c_float * num_tones
+    seq = ctypes.c_double * num_tones
     
     # gmoog.zeroAll()
     # sleep(0.5)
-    # gmoog.setDAC(dac=DACoffset, channels=num_tones, freqs=seq(*freqs0), amps=seq(*opt_amps0), phases=seq(*phase_degs))
+    # gmoog.setDAC(dac=DACoffset, channels=num_tones, freqs=seq(*freqs0), amps=seq(*opt_amps0), phases=seq(*phase_degs0))
     # sleep(0.5)
-    # gmoog.setDAC(dac=DACoffset+1, channels=num_tones, freqs=seq(*freqs1), amps=seq(*opt_amps1), phases=seq(*phase_degs))
+    # gmoog.setDAC(dac=DACoffset+1, channels=num_tones, freqs=seq(*freqs1), amps=seq(*opt_amps1), phases=seq(*phase_degs1))
     # sleep(0.5)
     # gmoog.endMessage()
     # sleep(0.5)
@@ -139,6 +137,6 @@ def test_with_optimizer():
     client.triggerGigamoog()
 
 if __name__ == '__main__':
-    test_with_bare_command()
+    # test_with_bare_command()
     # test_with_FreqTones_class()
-    # test_with_optimizer()
+    test_with_optimizer()

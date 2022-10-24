@@ -54,6 +54,10 @@ class TweezerGrid2D:
         n1 = self.freq_axis1.num_tones
 
         trap_depth_matrix = trap_depth.reshape((n1,n0))[::-1,:]
+        # trap_depth_matrix = trap_depth.reshape((n1,n0))[::-1,:].T
+        # trap_depth_matrix = trap_depth.reshape((n1,n0))[:,::-1].T
+        # trap_depth_matrix = trap_depth.reshape((n1,n0))[:,:].T
+        # trap_depth_matrix = trap_depth.reshape((n1,n0))[::-1,::-1].T
 
         err = (trap_depth_matrix-trap_depth.mean())/trap_depth.mean() * 100
         maxerr = np.max(np.abs(err))
@@ -79,8 +83,8 @@ class TweezerGrid2D:
             amp_D0 = trap_depth_matrix[np.random.randint(n1),:]  #DAC0
             amp_D1 = trap_depth_matrix[:,np.random.randint(n0)]  #DAC1    
 
-        ampoutD0 = self.freq_axis0.opt_amps - (amp_D0-amp_D0.mean())*ampscale
-        ampoutD1 = self.freq_axis1.opt_amps - (amp_D1-amp_D1.mean())*ampscale
+        ampoutD0 = self.freq_axis0.opt_amps - (amp_D0-amp_D0.mean())/amp_D0.mean()*ampscale
+        ampoutD1 = self.freq_axis1.opt_amps - (amp_D1-amp_D1.mean())/amp_D1.mean()*ampscale
         
         passed = self.freq_axis0.checkAmplitudeLimit(amps=ampoutD0)
         if not passed:
@@ -105,7 +109,7 @@ class TweezerGrid2D:
         self.freq_axis1.writeToGIGAMOOG(self.gmoog)
         self.gmoog.endMessage()
 
-        return self.freq_axis0.opt_amps, self.freq_axis1.opt_amps, maxerr
+        return self.freq_axis0.opt_amps, self.freq_axis1.opt_amps, err
 
 
 
