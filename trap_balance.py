@@ -40,6 +40,7 @@ def trap_balancing():
     freq_tones0.writeToGIGAMOOG(gmoog)
     freq_tones1.writeToGIGAMOOG(gmoog)
     gmoog.endMessage()
+    sleep(1)
     zclient.triggerGigamoog()
     sleep(1)
 
@@ -75,12 +76,15 @@ def trap_balancing():
         img_avg = mako.getAvgImages(num = 20, time_interval = 0.05, debug=False)
         twz_amps = getTweezerAmplitudes(img_avg, maximaLocs, amp_option='fit', showResult=False)
         trap_depth_mapped = trap_depth / twz_amps0 * twz_amps
-        if (err > 13):
+        if (err > 25):
             dac0_amp, dac1_amp, allerr = optimizer.getGMAmplitudes(
-                trap_depth=unp.nominal_values(trap_depth_mapped), method='randomCross', ampscale=2, showPlot=False)
+                trap_depth=unp.nominal_values(trap_depth_mapped), method='cross', ampscale=0.5, showPlot=False)
+        elif (err>18):
+            dac0_amp, dac1_amp, allerr = optimizer.getGMAmplitudes(
+                trap_depth=unp.nominal_values(trap_depth_mapped), method='randomCross', ampscale=1, showPlot=False)
         else:
             dac0_amp, dac1_amp, allerr = optimizer.getGMAmplitudes(
-                trap_depth=unp.nominal_values(trap_depth_mapped), method='randomCross', ampscale=4, showPlot=False)
+                trap_depth=unp.nominal_values(trap_depth_mapped), method='randomCross', ampscale=2, showPlot=False)
         sleep(0.1)
         # zclient._triggerGigamoogWithTweezersOn()
         zclient.triggerGigamoog()
