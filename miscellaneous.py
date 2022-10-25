@@ -43,8 +43,8 @@ class realTimeDrawer():
     def __init__(self):
         plt.ion()
         # here we are creating sub plots
-        self.fig, self._axes = plt.subplots(figsize=[18,6], ncols=3)
-        self._all_plot_types = ['trap_depth', 'dac_output', 'history']
+        self.fig, self._axes = plt.subplots(figsize=[18,6], ncols=4)
+        self._all_plot_types = ['trap_depth', 'dac_output', 'history', 'twz_amp']
         self.axes = {plot_type: ax for plot_type, ax in zip(self._all_plot_types, self. _axes)}
 
         self.axes['trap_depth'].set_xlabel('trap label')
@@ -55,6 +55,9 @@ class realTimeDrawer():
 
         self.axes['dac_output'].set_xlabel('dac channel')
         self.axes['dac_output'].set_ylabel('output amp')
+
+        self.axes['twz_amp'].set_xlabel('trap label')
+        self.axes['twz_amp'].set_ylabel('tweezer amplitude')
 
     def updateXY(self, x, y, type = 'trap_depth'):
         if type=='trap_depth':
@@ -87,6 +90,15 @@ class realTimeDrawer():
             for _x,_y,_l in zip(x,y,self.axes[type].lines):
                 _l.set_xdata(_x)
                 _l.set_ydata(_y)
+
+        if type == 'twz_amp':
+            if not self.axes[type].lines:
+                self.axes[type].plot(x, y, label='current')
+                self.axes[type].plot(x, y, label='initial')
+                self.axes[type].legend()
+
+            self.axes[type].lines[0].set_xdata(x)
+            self.axes[type].lines[0].set_ydata(y)
 
 
         # recompute the ax.dataLim
@@ -121,6 +133,24 @@ set DAC1 5  25.17 100.80   0.00\
 set DAC1 6  22.23 103.60 260.00\
 set DAC1 7  26.20 106.40 200.00\
 set DAC1 8  30.38 109.20 180.00'
+ginput = 'set DAC0 0  30.41  86.80  20.00\
+set DAC0 1  27.63  89.60  80.00\
+set DAC0 2  25.70  92.40 180.00\
+set DAC0 3  25.90  95.20 320.00\
+set DAC0 4  27.76  98.00 140.00\
+set DAC0 5  30.14 100.80   0.00\
+set DAC0 6  30.50 103.60 260.00\
+set DAC0 7  28.44 106.40 200.00\
+set DAC0 8  27.94 109.20 180.00\
+set DAC1 0  24.97  86.80  20.00\
+set DAC1 1  25.72  89.60  80.00\
+set DAC1 2  28.23  92.40 180.00\
+set DAC1 3  30.50  95.20 320.00\
+set DAC1 4  30.22  98.00 140.00\
+set DAC1 5  27.88 100.80   0.00\
+set DAC1 6  26.23 103.60 260.00\
+set DAC1 7  25.85 106.40 200.00\
+set DAC1 8  30.00 109.20 180.00'
 def getAmplitudeFromGigamoogInput(ginput:str = ginput):
     ginput = list(filter(None, ginput.split('set DAC')))
     ginput = [list(filter(None, _ginput.split(' '))) for _ginput in ginput]

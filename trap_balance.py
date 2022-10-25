@@ -1,7 +1,7 @@
 from cProfile import label
 import sys
 import ctypes
-from time import sleep
+from time import gmtime, sleep
 import h5py as h5
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24,6 +24,13 @@ dac0_init_amp = np.array([27.92, 28.22, 28.32, 28.37, 28.47, 28.62, 28.92, 29.07
 dac1_init_amp = np.array([26.92, 27.32, 27.42, 27.57, 27.82, 28.02, 28.42, 28.62, 28.87])
 MAX_AMPLITUDE = 30.5
 
+def writeTwoTonesToGIGAMOOG(freq_tones0:FrequencyTones, freq_tones1:FrequencyTones, gmoog:GM_python, zclient:zynq_tcp_client):
+    gmoog.zeroAll()
+    freq_tones0.writeToGIGAMOOG(gmoog)
+    freq_tones1.writeToGIGAMOOG(gmoog)
+    gmoog.endMessage()
+    sleep(1)
+    zclient.triggerGigamoog()
 
 def trap_balancing():
     gmoog = GM_python()
@@ -36,12 +43,7 @@ def trap_balancing():
     freq_tones1.set_initial_amps(dac1_init_amp)
 
     # set the amplitude to init amp before any optimization, so that it is indepedent of previous run
-    gmoog.zeroAll()
-    freq_tones0.writeToGIGAMOOG(gmoog)
-    freq_tones1.writeToGIGAMOOG(gmoog)
-    gmoog.endMessage()
-    sleep(1)
-    zclient.triggerGigamoog()
+    writeTwoTonesToGIGAMOOG(freq_tones0=freq_tones0,freq_tones1=freq_tones1, gmoog=gmoog, zclient=zclient)
     sleep(1)
 
     optimizer = TweezerGrid2D(freq_axis0=freq_tones0,freq_axis1=freq_tones1, gmoog=gmoog)
@@ -58,6 +60,7 @@ def trap_balancing():
 
     # get the initial tweezer peak with the inital GM amplitude
     twz_amps0 = getTweezerAmplitudes(img_avg, maximaLocs, amp_option='fit', showResult=False)
+    drawer.updateXY(np.arange(twz_amps0.size) ,unp.nominal_values(twz_amps0).reshape(freq_tones1.num_tones, freq_tones0.num_tones)[::-1,:].flatten(), type='twz_amp')
     print("Calculated tweezer amplitudes", twz_amps0)
 
     print("Start to balance the trap ... ")
@@ -66,11 +69,35 @@ def trap_balancing():
     current_step = 0
     err = np.abs((trap_depth - trap_depth.mean()) / trap_depth.mean()).max() * 100
     err_store = []
-    
+
     with open('./result/result.txt', 'w') as f:
         f.close()
 
     while (err > 2.5) and (current_step < max_steps):
+        if (current_step + 1) % 10 == 0:
+            print(f"****************** Check tweezer monitor camera amlitude by going back to init amp********************")
+            dac0_opt_amp = freq_tones0.opt_amps
+            dac1_opt_amp = freq_tones1.opt_amps
+            freq_tones0.updateOptimalAmps(dac0_init_amp)
+            freq_tones1.updateOptimalAmps(dac1_init_amp)
+            writeTwoTonesToGIGAMOOG(freq_tones0=freq_tones0,freq_tones1=freq_tones1, gmoog=gmoog, zclient=zclient)
+            sleep(1)
+
+            img_avg = mako.getAvgImages(num = 20, time_interval = 0.05, debug=False)
+            twz_amps0 = getTweezerAmplitudes(img_avg, maximaLocs, amp_option='fit', showResult=False)
+            drawer.updateXY(np.arange(twz_amps0.size) ,unp.nominal_values(twz_amps0).reshape(freq_tones1.num_tones, freq_tones0.num_tones)[::-1,:].flatten(), type='twz_amp')
+
+            print("Finishing checking, writing back the previous optimal DAC control amplitude")
+            print("DAC0 check: ", freq_tones0.opt_amps)
+            print("DAC1 check: ", freq_tones1.opt_amps)
+            freq_tones0.updateOptimalAmps(dac0_opt_amp)
+            freq_tones1.updateOptimalAmps(dac1_opt_amp)
+            writeTwoTonesToGIGAMOOG(freq_tones0=freq_tones0,freq_tones1=freq_tones1, gmoog=gmoog, zclient=zclient)
+            print("DAC0 after check: ", freq_tones0.opt_amps)
+            print("DAC1 after check: ", freq_tones1.opt_amps)
+            sleep(1)
+            
+
         print(f"****************************************step {current_step:d} start***************************************************")
         print(f"Performing optimization with step: {current_step:d}, error is {err:.2f}")
         img_avg = mako.getAvgImages(num = 20, time_interval = 0.05, debug=False)
@@ -78,10 +105,10 @@ def trap_balancing():
         trap_depth_mapped = trap_depth / twz_amps0 * twz_amps
         if (err > 25):
             dac0_amp, dac1_amp, allerr = optimizer.getGMAmplitudes(
-                trap_depth=unp.nominal_values(trap_depth_mapped), method='cross', ampscale=0.5, showPlot=False)
+                trap_depth=unp.nominal_values(trap_depth_mapped), method='randomCross', ampscale=0.7, showPlot=False)
         elif (err>18):
             dac0_amp, dac1_amp, allerr = optimizer.getGMAmplitudes(
-                trap_depth=unp.nominal_values(trap_depth_mapped), method='randomCross', ampscale=1, showPlot=False)
+                trap_depth=unp.nominal_values(trap_depth_mapped), method='cross', ampscale=1, showPlot=False)
         else:
             dac0_amp, dac1_amp, allerr = optimizer.getGMAmplitudes(
                 trap_depth=unp.nominal_values(trap_depth_mapped), method='randomCross', ampscale=2, showPlot=False)
@@ -114,22 +141,19 @@ def trap_balancing():
     
 
 def evaluateTrapDepthResult():
-    # dac0_opt_amp = [30.33, 26.05, 22.33, 27.06, 28.60, 30.50, 29.82, 23.84, 27.93]
-    # dac1_opt_amp = [22.08, 23.89, 28.33, 30.50, 28.85, 25.17, 22.23, 26.20, 30.38]
+    dac0_opt_amp = np.array([30.41, 27.63, 25.70, 25.90, 27.76, 30.14, 30.50, 28.44, 27.94])
+    dac1_opt_amp = np.array([24.97, 25.72, 28.23, 30.50, 30.22, 27.88, 26.23, 25.85, 30.00])
 
-    # gmoog = GM_python()
-    # zclient = zynq_tcp_client()
+    gmoog = GM_python()
+    zclient = zynq_tcp_client()
     
-    # freq_tones0 = FrequencyTones(0, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
-    # freq_tones0.set_initial_amps(dac0_opt_amp)
-    # freq_tones1 = FrequencyTones(1, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
-    # freq_tones1.set_initial_amps(dac1_opt_amp)
+    freq_tones0 = FrequencyTones(0, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
+    freq_tones1 = FrequencyTones(1, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
+    freq_tones0.set_initial_amps(dac0_init_amp)
+    freq_tones1.set_initial_amps(dac1_init_amp)
 
-    # # set the amplitude to init amp before any optimization, so that it is indepedent of previous run
-    # gmoog.zeroAll()
-    # freq_tones0.writeToGIGAMOOG(gmoog)
-    # freq_tones1.writeToGIGAMOOG(gmoog)
-    # gmoog.endMessage()
+    # set the amplitude to init amp before any optimization, so that it is indepedent of previous run
+    writeTwoTonesToGIGAMOOG(freq_tones0=freq_tones0,freq_tones1=freq_tones1, gmoog=gmoog, zclient=zclient)
 
 
     mako = mako_camera(ipaddr=tweezer_moncam_ip, settingAddr=tweezer_moncam_setting)
@@ -138,12 +162,21 @@ def evaluateTrapDepthResult():
     twz_amps0 = getTweezerAmplitudes(img_avg0, maximaLocs, amp_option='fit', showResult=False)
     # twz_amps0 = unp.nominal_values(twz_amps0)
 
+    img_avg0_cam = mako.getAvgImages(num = 20, time_interval = 0.05, debug=False)
+    twz_amps0_cam = getTweezerAmplitudes(img_avg0_cam, maximaLocs, amp_option='fit', showResult=False)
+    plt.plot(unp.nominal_values(twz_amps0), label=r'initial amp fit in file')
+    plt.plot(unp.nominal_values(twz_amps0_cam), label = 'current amp fit from camera')
+    plt.legend()
+    plt.show()
+
+
+    freq_tones0.set_initial_amps(dac0_opt_amp)
+    freq_tones1.set_initial_amps(dac1_opt_amp)
+    # set the amplitude to init amp before any optimization, so that it is indepedent of previous run
+    writeTwoTonesToGIGAMOOG(freq_tones0=freq_tones0,freq_tones1=freq_tones1, gmoog=gmoog, zclient=zclient)
+
     img_avg = mako.getAvgImages(num = 20, time_interval = 0.05, debug=False)
     twz_amps = getTweezerAmplitudes(img_avg, maximaLocs, amp_option='fit', showResult=False)
-    # plt.plot(unp.nominal_values(twz_amps0))
-    # plt.plot(unp.nominal_values(twz_amps))
-    # plt.show()
-
     trap_depth, trap_depth_uncertainty = getTrapDepthData(trap_data_file=trap_depth_datafile)
     trap_depth_mapped = unp.nominal_values(trap_depth / twz_amps0 * twz_amps)
     # trap_depth_mapped = unp.nominal_values(trap_depth_mapped)
@@ -151,6 +184,15 @@ def evaluateTrapDepthResult():
     print("All errors: ", allerr)
     plt.plot(np.arange(allerr.size), allerr.flatten(), label='current')
     plt.plot(np.arange(allerr.size), (trap_depth.reshape([9,9])[::-1,:] - trap_depth.mean()).flatten()/trap_depth.mean()*100, label='initial')
+
+    trap_depth_mapped_cam = unp.nominal_values(trap_depth / twz_amps0_cam * twz_amps)
+    # trap_depth_mapped = unp.nominal_values(trap_depth_mapped)
+    allerr = (trap_depth_mapped_cam.reshape([9,9])[::-1,:] - trap_depth_mapped_cam.mean()) / trap_depth_mapped_cam.mean() * 100
+    plt.plot(np.arange(allerr.size), allerr.flatten(), label='current with cam img')
+
+    print("All errors: ", allerr)
+
+    plt.title(f'max error: {np.abs(allerr).max():2.2f}')
     plt.legend()
     plt.show()
 

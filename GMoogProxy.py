@@ -136,7 +136,29 @@ def test_with_optimizer():
     sleep(0.1)
     client.triggerGigamoog()
 
+def setGMoogAmplitude():
+    MAX_AMPLITUDE = 30.5
+    dac0_init_amp = np.array([27.92, 28.22, 28.32, 28.37, 28.47, 28.62, 28.92, 29.07, 29.17])
+    dac1_init_amp = np.array([26.92, 27.32, 27.42, 27.57, 27.82, 28.02, 28.42, 28.62, 28.87])
+    
+    freq_tones0 = ft.FrequencyTones(0, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
+    freq_tones0.set_initial_amps(dac0_init_amp)
+    freq_tones1 = ft.FrequencyTones(1, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
+    freq_tones1.set_initial_amps(dac1_init_amp)
+
+    gmoog = GM_python()
+    client = zynq_tcp_client()
+
+    gmoog.zeroAll()
+    freq_tones0.writeToGIGAMOOG(gmoog)
+    freq_tones1.writeToGIGAMOOG(gmoog)
+    gmoog.endMessage()
+    sleep(1)
+    client.triggerGigamoog()
+
+
 if __name__ == '__main__':
     # test_with_bare_command()
     # test_with_FreqTones_class()
-    test_with_optimizer()
+    # test_with_optimizer()
+    setGMoogAmplitude()
