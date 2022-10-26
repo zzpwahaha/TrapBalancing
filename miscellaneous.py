@@ -3,7 +3,8 @@ import h5py as h5
 import matplotlib.pyplot as plt
 import sys
 sys.path.append('C:\Chimera\B240_data_analysis\Library\ChimeraGenTools')
-from AnalysisHelpers import getRawAtomImages, fitManyGaussian2D, fitPic, fitGaussian2D, unp
+from AnalysisHelpers import getRawAtomImages, fitManyGaussian2D, fitPic, fitGaussian2D, unp, crop
+# import AnalysisHelpers as ah
 
 def getTweezerAmplitudes(picture, tweezerLocs, amp_option='fit', showResult=False):
     idv_atom_imgs = getRawAtomImages(
@@ -43,9 +44,10 @@ class realTimeDrawer():
     def __init__(self):
         plt.ion()
         # here we are creating sub plots
-        self.fig, self._axes = plt.subplots(figsize=[18,6], ncols=4)
+        self.fig, self._axes = plt.subplots(figsize=[20,12], ncols=4, nrows=2)
         self._all_plot_types = ['trap_depth', 'dac_output', 'history', 'twz_amp']
-        self.axes = {plot_type: ax for plot_type, ax in zip(self._all_plot_types, self. _axes)}
+        self.axes = {plot_type: ax for plot_type, ax in zip(self._all_plot_types, self._axes.flatten())}
+        self.maxilocs_dplot_axes = self._axes[1,:]
 
         self.axes['trap_depth'].set_xlabel('trap label')
         self.axes['trap_depth'].set_ylabel('trap depth mapped')
@@ -114,6 +116,27 @@ class realTimeDrawer():
         # currently waiting have been processed
         self.fig.canvas.flush_events()
 
+    def updateMaximaLocs(self, pic, maximaLocs, window = None):
+        ax = self.maxilocs_dplot_axes
+        fig = self.fig
+        p = ax[0].pcolormesh(*crop(pic, window, forPlot=True))
+        ax[0].set_aspect('equal')
+        fig.colorbar(p, ax = ax[0])
+        # if window is None:
+        #     window = [0,0,pic.shape[-1], pic.shape[-2]]
+        # ax[0].plot([window[0]+_max[0] for _max in maximaLocs],
+        #         [window[1]+_max[1] for _max in maximaLocs], marker='.', ms=2, ls='', mec='k', mfc='k')
+        # ax[1].pcolormesh(*crop(pic, window, forPlot=True, startXYZero=True))
+        # ax[1].set_aspect('equal')
+        # ax[1].plot([_max[0] for _max in maximaLocs],
+        #         [_max[1] for _max in maximaLocs], marker='.', ms=2, ls='', mec='k', mfc='k')
+        ax[1].pcolormesh(*crop(pic, window, forPlot=True, startXYZero=True))
+        ax[1].set_aspect('equal')
+        ax[1].plot([_max[0] for _max in maximaLocs],
+                [_max[1] for _max in maximaLocs], marker='.', ms=2, ls='', mec='k', mfc='k')        
+        for _idx, _max in enumerate(maximaLocs):
+            ax[1].text(x=_max[0]+1,y=_max[1]+1,s="{:d}".format(_idx),c='white',ha='center', va='center')
+
 
 ginput = 'set DAC0 0  30.33  86.80  20.00\
 set DAC0 1  26.05  89.60  80.00\
@@ -151,6 +174,24 @@ set DAC1 5  27.88 100.80   0.00\
 set DAC1 6  26.23 103.60 260.00\
 set DAC1 7  25.85 106.40 200.00\
 set DAC1 8  30.00 109.20 180.00'
+ginput = 'set DAC0 0  30.35  86.80  20.00\
+set DAC0 1  27.58  89.60  80.00\
+set DAC0 2  25.61  92.40 180.00\
+set DAC0 3  26.00  95.20 320.00\
+set DAC0 4  27.92  98.00 140.00\
+set DAC0 5  30.06 100.80   0.00\
+set DAC0 6  30.49 103.60 260.00\
+set DAC0 7  28.46 106.40 200.00\
+set DAC0 8  28.13 109.20 180.00\
+set DAC1 0  25.04  86.80  20.00\
+set DAC1 1  25.71  89.60  80.00\
+set DAC1 2  28.12  92.40 180.00\
+set DAC1 3  30.50  95.20 320.00\
+set DAC1 4  30.13  98.00 140.00\
+set DAC1 5  27.80 100.80   0.00\
+set DAC1 6  26.17 103.60 260.00\
+set DAC1 7  25.71 106.40 200.00\
+set DAC1 8  29.83 109.20 180.00'
 def getAmplitudeFromGigamoogInput(ginput:str = ginput):
     ginput = list(filter(None, ginput.split('set DAC')))
     ginput = [list(filter(None, _ginput.split(' '))) for _ginput in ginput]
