@@ -7,18 +7,14 @@ import ctypes
 
 @dataclass
 class FrequencyTones:
-    def __init__(self, DACoffset, numtones, freq_center, freq_spacing, amplitude, max_amp = 100):
+    def __init__(self, DACoffset, numtones, freqs, phases, amplitude, max_amp = 100):
         self.DACoffset = DACoffset  # which dac is using in gm
         self.num_tones = numtones
-        self.freq_center = freq_center
-        self.freq_spacing = freq_spacing
         self.nominal_amplitude = amplitude
 
         self.tone_idx = np.arange(self.num_tones)
-        self.freqs = self.freq_center + self.freq_spacing * \
-            np.arange(-(self.num_tones-1)/2, self.num_tones/2, 1)
-        # follows https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=1054411 only works for equally spaced tones
-        self.phases = np.pi*((self.tone_idx+1)**2)/(self.num_tones)
+        self.freqs = freqs
+        self.phases = phases
         self.phase_degs = np.round(self.phases*180/np.pi % 360, 1)
         self.init_amps = np.ones(self.num_tones)*self.nominal_amplitude
         self.opt_amps = self.init_amps.copy()
@@ -27,6 +23,33 @@ class FrequencyTones:
         self.max_amp = max_amp
         print(f"NOTICE: the maximum amplitude is set to {self.max_amp}")
         self.checkAmplitudeLimit()
+
+    @classmethod
+    def fromFixedFrequencySpacing(cls, DACoffset, numtones, freq_center, freq_spacing, amplitude, max_amp = 100):
+        freqs = freq_center + freq_spacing * np.arange(-(numtones-1)/2, numtones/2, 1)
+        # follows https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=1054411 only works for equally spaced tones
+        phases = np.pi*((np.arange(numtones)+1)**2)/(numtones)
+    
+        return cls(DACoffset, numtones, freqs, phases, amplitude, max_amp)
+
+    # def __init__(self, DACoffset, numtones, freq_center, freq_spacing, amplitude, max_amp = 100):
+    #     self.DACoffset = DACoffset  # which dac is using in gm
+    #     self.num_tones = numtones
+    #     self.freq_center = freq_center
+    #     self.freq_spacing = freq_spacing
+    #     self.nominal_amplitude = amplitude
+    #     self.tone_idx = np.arange(self.num_tones)
+    #     self.freqs = self.freq_center + self.freq_spacing * \
+    #         np.arange(-(self.num_tones-1)/2, self.num_tones/2, 1)
+    #     # follows https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=1054411 only works for equally spaced tones
+    #     self.phases = np.pi*((self.tone_idx+1)**2)/(self.num_tones)
+    #     self.phase_degs = np.round(self.phases*180/np.pi % 360, 1)
+    #     self.init_amps = np.ones(self.num_tones)*self.nominal_amplitude
+    #     self.opt_amps = self.init_amps.copy()
+    #     self.opt_amps_previous_values = [self.opt_amps]
+    #     self.max_amp = max_amp
+    #     print(f"NOTICE: the maximum amplitude is set to {self.max_amp}")
+    #     self.checkAmplitudeLimit()
 
     def get_GM_Command(self):
         command = []

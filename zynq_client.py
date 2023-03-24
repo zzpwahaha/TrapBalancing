@@ -3,11 +3,16 @@ import sys
 from time import sleep
 
 # 2022/10/18
-trg_command = [b't00002710_b00006B00000000D0',
-               b't00002774_b01006B00000000D0',
-               b't000027D8_b00006B00000000D0']
+# trg_command = [b't00002710_b00006B00000000D0',
+#                b't00002774_b01006B00000000D0',
+#                b't000027D8_b00006B00000000D0']
+# static_output_command = [b't00002710_b00006B00000000D0']
 
-static_output_command = [b't00002710_b00006B00000000D0']
+# 2023/03/23
+trg_command = [b't00002710_b0000EB00000000D0',
+               b't00002774_b0100EB00000000D0',
+               b't000027D8_b0000EB00000000D0']
+static_output_command = [b't00002710_b0000EB00000000D0']
 
 
 class zynq_tcp_client:

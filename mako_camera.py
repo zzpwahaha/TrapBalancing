@@ -67,3 +67,11 @@ if __name__ == '__main__':
     ax.pcolormesh(img_avg)
     ax.set_aspect(1)
     plt.show()
+
+    # img_avg = mako.getAvgImages(num = 20, time_interval = 0.05, debug=False)
+    sys.path.append('C:\Chimera\B240_data_analysis\Library\ChimeraGenTools')
+    from AnalysisHelpers import findAtomLocs
+    maximaLocs = findAtomLocs(img_avg, window=None, neighborhood_size=95., threshold=16, sort='MatchArray', debug_plot=True,
+                              advanced_option = dict({"active":True, "image_threshold":10, "score_threshold":10}))
+    plt.show()
+    print(maximaLocs)

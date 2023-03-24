@@ -19,11 +19,33 @@ from AnalysisHelpers import findAtomLocs
 
 tweezer_moncam_ip = '10.10.0.8'
 tweezer_moncam_setting = './tweezer_monitor.xml'
-trap_depth_datafile = 'trap_depth_2022-10-19.h5'
+# trap_depth_datafile = 'trap_depth_2022-10-19.h5'
+# dac0_init_amp = np.array([27.92, 28.22, 28.32, 28.37, 28.47, 28.62, 28.92, 29.07, 29.17])
+# dac1_init_amp = np.array([26.92, 27.32, 27.42, 27.57, 27.82, 28.02, 28.42, 28.62, 28.87])
+# MAX_AMPLITUDE = 30.8
+# freq_tones0 = FrequencyTones.fromFixedFrequencySpacing(0, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
+# freq_tones0.set_initial_amps(dac0_init_amp)
+# freq_tones1 = FrequencyTones.fromFixedFrequencySpacing(1, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
+# freq_tones1.set_initial_amps(dac1_init_amp)
 
-dac0_init_amp = np.array([27.92, 28.22, 28.32, 28.37, 28.47, 28.62, 28.92, 29.07, 29.17])
-dac1_init_amp = np.array([26.92, 27.32, 27.42, 27.57, 27.82, 28.02, 28.42, 28.62, 28.87])
-MAX_AMPLITUDE = 30.8
+# 2023/03/23 trap depth balancing for 2x9 grid
+GRID = [2,9]
+trap_depth_datafile = 'trap_depth_2023-3-23.h5'
+dac0_init_amp = np.array([30.67, 27.82, 25.83, 26.10, 28.02, 30.19, 30.78, 28.63, 28.14])
+dac1_init_amp = np.array([30.79, 30.75])
+MAX_AMPLITUDE = 31
+
+freq_tones0 = FrequencyTones(DACoffset=0, numtones=9, 
+                             freqs=np.array([86.80, 88.00, 89.60, 91.60, 94.00, 96.80, 100.00, 103.60, 107.60]),
+                             phases=np.array([3, 66, 169, 251, 322, 315, 353, 0, 0]), 
+                             amplitude=28.3, max_amp= MAX_AMPLITUDE)
+freq_tones0.set_initial_amps(dac0_init_amp)
+freq_tones1 = FrequencyTones(DACoffset=1, numtones=2, 
+                             freqs=np.array([91.6, 103.6]),
+                             phases=np.array([251, 0]), 
+                             amplitude=28.3, max_amp= MAX_AMPLITUDE)
+freq_tones1.set_initial_amps(dac1_init_amp)
+
 
 def writeTwoTonesToGIGAMOOG(freq_tones0:FrequencyTones, freq_tones1:FrequencyTones, gmoog:GM_python, zclient:zynq_tcp_client):
     gmoog.zeroAll()
@@ -38,10 +60,11 @@ def trap_balancing():
     zclient = zynq_tcp_client()
     mako = mako_camera(ipaddr=tweezer_moncam_ip, settingAddr=tweezer_moncam_setting)
     
-    freq_tones0 = FrequencyTones(0, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
-    freq_tones0.set_initial_amps(dac0_init_amp)
-    freq_tones1 = FrequencyTones(1, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
-    freq_tones1.set_initial_amps(dac1_init_amp)
+    # freq_tones0 = FrequencyTones(0, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
+    # freq_tones0.set_initial_amps(dac0_init_amp)
+    # freq_tones1 = FrequencyTones(1, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
+    # freq_tones1.set_initial_amps(dac1_init_amp)
+
 
     # set the amplitude to init amp before any optimization, so that it is indepedent of previous run
     writeTwoTonesToGIGAMOOG(freq_tones0=freq_tones0,freq_tones1=freq_tones1, gmoog=gmoog, zclient=zclient)
@@ -54,7 +77,11 @@ def trap_balancing():
     drawer.updateXY([np.arange(dac0_init_amp.size), np.arange(dac1_init_amp.size)], [dac0_init_amp, dac1_init_amp], type='dac_output')
 
     img_avg = mako.getAvgImages(num = 20, time_interval = 0.05, debug=False)
-    maximaLocs = findAtomLocs(img_avg, window=None, neighborhood_size=95., threshold=16, sort='MatchArray', debug_plot=False)
+    # hardcode maximaLocs, since the findAtomlocs function somehow takes a lot of time
+    maximaLocs = \
+        np.array([[160, 304], [191, 304], [233, 304], [285, 305], [348, 304], [421, 305], [505, 305], [599, 305], [704, 305], [161, 619], [193, 619], [235, 619], [287, 619], [349, 619], [423, 620], [506, 620], [601, 620], [706, 620]])
+        # findAtomLocs(img_avg, window=None, neighborhood_size=95., threshold=16, sort='MatchArray', debug_plot=False,
+        #                       advanced_option = dict({"active":True, "image_threshold":10, "score_threshold":10}))
     drawer.updateMaximaLocs(pic = img_avg, maximaLocs= maximaLocs, window=None)
     print(f"Found {len(maximaLocs):d} maximas", maximaLocs)
     # np.savetxt('./test/img_avg_withWrongLocs.txt',img_avg)
@@ -78,7 +105,7 @@ def trap_balancing():
     with open('./result/result.txt', 'w') as f:
         f.close()
     start_time = time()
-    while (err > 5) and (current_step < max_steps):
+    while (err > 3) and (current_step < max_steps):
         if (current_step + 1) % 10 == 0:
             print(f"****************** Check tweezer monitor camera amlitude by going back to init amp********************")
             dac0_opt_amp = freq_tones0.opt_amps
@@ -131,7 +158,7 @@ def trap_balancing():
         print("dac0 amplitude: ", dac0_amp)
         print("dac1 amplitude: ", dac1_amp)
         drawer.updateXY(np.arange(allerr.size), allerr.flatten(), type='trap_depth')
-        drawer.updateXY([np.arange(dac0_amp.size), np.arange(dac0_amp.size)], [dac0_amp, dac1_amp], type='dac_output')
+        drawer.updateXY([np.arange(dac0_amp.size), np.arange(dac1_amp.size)], [dac0_amp, dac1_amp], type='dac_output')
         drawer.updateXY([np.arange(current_step+1), np.arange(current_step+1)], [np.max(np.abs(err_store), axis=(1,2)), np.std(err_store, axis=(1,2))], type='history')
         drawer.fig.suptitle(f"Step #{current_step+1:d} at time: {str(timedelta(seconds=time()-start_time)):s}")
 

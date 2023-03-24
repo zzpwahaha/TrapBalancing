@@ -192,12 +192,46 @@ set DAC1 5  27.80 100.80   0.00\
 set DAC1 6  26.17 103.60 260.00\
 set DAC1 7  25.71 106.40 200.00\
 set DAC1 8  29.83 109.20 180.00'
+ginput = 'set DAC0 0  30.67  86.80  3\
+set DAC0 1  27.82  88.00  66\
+set DAC0 2  25.83  89.60  169\
+set DAC0 3  26.10  91.60  251\
+set DAC0 4  28.02  94.00  322\
+set DAC0 5  30.19  96.80  315\
+set DAC0 6  30.78 100.00  353\
+set DAC0 7  28.63 103.60  0\
+set DAC0 8  28.14 107.60  0'
+
 def getAmplitudeFromGigamoogInput(ginput:str = ginput):
     ginput = list(filter(None, ginput.split('set DAC')))
     ginput = [list(filter(None, _ginput.split(' '))) for _ginput in ginput]
     amp = []
     for gi in ginput:
         amp.append(gi[2])
+    
+    for idx, _amp in enumerate(amp):
+        print(f"{_amp:s}, ", end='')
+        if idx == 8:
+            print(" ")
+
+def getFrequencyFromGigamoogInput(ginput:str = ginput):
+    ginput = list(filter(None, ginput.split('set DAC')))
+    ginput = [list(filter(None, _ginput.split(' '))) for _ginput in ginput]
+    amp = []
+    for gi in ginput:
+        amp.append(gi[3])
+    
+    for idx, _amp in enumerate(amp):
+        print(f"{_amp:s}, ", end='')
+        if idx == 8:
+            print(" ")
+
+def getPhaseFromGigamoogInput(ginput:str = ginput):
+    ginput = list(filter(None, ginput.split('set DAC')))
+    ginput = [list(filter(None, _ginput.split(' '))) for _ginput in ginput]
+    amp = []
+    for gi in ginput:
+        amp.append(gi[4])
     
     for idx, _amp in enumerate(amp):
         print(f"{_amp:s}, ", end='')
@@ -211,3 +245,5 @@ if __name__ == '__main__':
     # plt.show()
 
     getAmplitudeFromGigamoogInput()
+    getFrequencyFromGigamoogInput()
+    getPhaseFromGigamoogInput()

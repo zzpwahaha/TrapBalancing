@@ -72,8 +72,8 @@ class TweezerGrid2D:
             cbar.set_label('Fractional offset (%)')
         
         if method == 'cross':
-            amp_D0 = trap_depth_matrix[n0//2,:]  #DAC0
-            amp_D1 = trap_depth_matrix[:,n1//2]  #DAC1    
+            amp_D0 = trap_depth_matrix[n1//2,:]  #DAC0
+            amp_D1 = trap_depth_matrix[:,n0//2]  #DAC1    
 
         elif method == 'mean':
             amp_D0 = trap_depth_matrix.mean(axis = 0)  #DAC0
