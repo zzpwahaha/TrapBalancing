@@ -7,7 +7,7 @@ import ctypes
 
 @dataclass
 class FrequencyTones:
-    def __init__(self, DACoffset, numtones, freqs, phases, amplitude, max_amp = 100):
+    def __init__(self, DACoffset, numtones, freqs, phases, amplitude, max_amp = 100, repeat=1):
         self.DACoffset = DACoffset  # which dac is using in gm
         self.num_tones = numtones
         self.nominal_amplitude = amplitude
@@ -21,7 +21,8 @@ class FrequencyTones:
         self.opt_amps_previous_values = [self.opt_amps]
 
         self.max_amp = max_amp
-        print(f"NOTICE: the maximum amplitude is set to {self.max_amp}")
+        self.repeat_num = repeat
+        print(f"NOTICE: the maximum amplitude is set to {self.max_amp} and each command will be repeated {self.repeat_num} times")
         self.checkAmplitudeLimit()
 
     @classmethod
@@ -105,15 +106,21 @@ class FrequencyTones:
         return passed
 
     def writeToGIGAMOOG(self, gmoog):
-        seq = ctypes.c_double * self.num_tones
+        num_tones = self.num_tones*self.repeat_num
+        freqs = np.tile(self.freqs, self.repeat_num)
+        opt_amps = np.tile(self.opt_amps, self.repeat_num)
+        phase_degs = np.tile(self.phase_degs, self.repeat_num)
+
+
+        seq = ctypes.c_double * num_tones
         # perform the last check before writing it to the gigamoog, last chance
         if self.checkAmplitudeLimit():
-            gmoog.setDAC(0+self.DACoffset, self.num_tones, seq(*self.freqs), seq(*self.opt_amps), seq(*self.phase_degs))
+            gmoog.setDAC(0+self.DACoffset, num_tones, seq(*freqs), seq(*opt_amps), seq(*phase_degs))
             print(r"DACoffset = ", 0+self.DACoffset, 
-                "\nnum_tones = ", self.num_tones, 
-                "\nfreqs = ", np.array2string(self.freqs, separator=","), 
-                "\nopt_amps = ", np.array2string(self.opt_amps, separator=","), 
-                "\nphase_degs = ", np.array2string(self.phase_degs, separator=","))
+                "\nnum_tones = ", num_tones, 
+                "\nfreqs = ", np.array2string(freqs, separator=","), 
+                "\nopt_amps = ", np.array2string(opt_amps, separator=","), 
+                "\nphase_degs = ", np.array2string(phase_degs, separator=","))
         else:
             raise RuntimeError("Failed to pass the amplitude limit check before setting the GIGAMOOG!!!! Aborted.")
 

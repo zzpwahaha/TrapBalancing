@@ -60,8 +60,10 @@ class mako_camera:
             return np.loadtxt("./test/img_avg_test.txt")
 
 if __name__ == '__main__':
-    mako = mako_camera(ipaddr="10.10.0.8")
-    img_avg = mako.getAvgImages()
+    tweezer_moncam_setting = './tweezer_monitor_20230926_5x5.xml'
+    mako = mako_camera(ipaddr="10.10.0.8", settingAddr=tweezer_moncam_setting)
+    img_avg = mako.getAvgImages(debug=True)
+    # np.savetxt("./test/img_avg_test.txt", img_avg)
     print(img_avg)
     # fig, ax = plt.subplots()
     # ax.pcolormesh(img_avg)
@@ -71,7 +73,7 @@ if __name__ == '__main__':
     # img_avg = mako.getAvgImages(num = 20, time_interval = 0.05, debug=False)
     sys.path.append('C:\Chimera\B240_data_analysis\Library\ChimeraGenTools')
     from AnalysisHelpers import findAtomLocs
-    maximaLocs = findAtomLocs(img_avg, window=None, neighborhood_size=95., threshold=20, sort='MatchArray', debug_plot=True,n_cluster_row=2,
+    maximaLocs = findAtomLocs(img_avg, window=None, neighborhood_size=95., threshold=20, sort='MatchArray', debug_plot=True,n_cluster_row=5,
                               advanced_option = dict({"active":False, "image_threshold":20, "score_threshold":20}))
     plt.show()
     print(maximaLocs)

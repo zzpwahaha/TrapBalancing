@@ -223,8 +223,28 @@ set DAC0 7  26.20 103.60   0.00\
 set DAC0 8  25.54 107.60   0.00\
 set DAC1 0  26.57  91.60 341.20\
 set DAC1 1  27.01 103.60   0.00'
+ginput='set DAC0 0  25.59  86.80 171.90\
+set DAC0 1  25.63  88.00 181.50\
+set DAC0 2  24.55  89.60 323.00\
+set DAC0 3  23.94  91.60 341.20\
+set DAC0 4  22.81  94.00  89.20\
+set DAC0 5  23.82  96.80  48.20\
+set DAC0 6  25.19 100.00  65.40\
+set DAC0 7  26.20 103.60   0.00\
+set DAC0 8  25.54 107.60   0.00\
+set DAC1 0  26.57  91.60 341.20\
+set DAC1 1  27.01 103.60   0.00'
 
-
+ginput= 'set DAC0 0 100.00 87.60 0.63\
+set DAC0 1 100.00 87.60 0.63\
+set DAC0 10 100.00 91.20 2.51\
+set DAC0 11 100.00 91.20 2.51\
+set DAC0 20 100.00 96.00 22.62\
+set DAC0 21 100.00 96.00 22.62\
+set DAC0 30 100.00 98.40 40.21\
+set DAC0 31 100.00 98.40 40.21\
+set DAC0 40 100.00 105.60 123.15\
+set DAC0 41 100.00 105.60 123.15'
 
 def getAmplitudeFromGigamoogInput(ginput:str = ginput):
     ginput = list(filter(None, ginput.split('set DAC')))
@@ -270,6 +290,9 @@ if __name__ == '__main__':
     # plt.show()
 
     _ = getAmplitudeFromGigamoogInput()
-    print(_ * (4/4.6)**(1/4))
+    print()
+    # print(_)
+    # print(_ * (4/4.6)**(1/4))
     getFrequencyFromGigamoogInput()
+    print()
     getPhaseFromGigamoogInput()
