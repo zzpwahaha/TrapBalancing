@@ -32,6 +32,8 @@ def getTweezerAmplitudes(picture, tweezerLocs, amp_option='fit', showResult=Fals
     return gauss_amp
 
 def getTrapDepthData(trap_data_file):
+    # this will take the trap depth, generated with Andor image in ChimeraGenTool, and flip it so that the returned trap depth will
+    # match the amplitude measured in the monitoring MAKO camera
     with h5.File(r'./TrapDepthData/'+trap_data_file, 'r') as f:
         trap_depth = f['trap_depth'][()]
         trap_depth_uncertainty = f['trap_depth_uncertainty'][()]

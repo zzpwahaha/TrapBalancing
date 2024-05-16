@@ -11,7 +11,7 @@ class TweezerGrid2D:
     freq_axis0 corresponds to gigamoog dac0
     freq_axis1 corresponds to gigamoog dac1
         In the current tweezer monitoring system, the DAC0 is horizontal and DAC1 is veritcal.
-        In the pcolormesh plot, the correpsonding freq tone is 
+        In the pcolormesh plot (from monitor MAKO camera), the correpsonding freq tone is 
             |DAC1 freq low, DAC0 freq low --------------- DAC1 freq low, DAC0 freq high  |
             |             :                                              :               |
             |             :                                              :               |

@@ -7,7 +7,8 @@ from uncertainties import unumpy as unp
 from miscellaneous import getTrapDepthData
 
 gmoogLib = ctypes.cdll.LoadLibrary(
-    'C:/Chimera/gmoogLib/gmoogLib/x64/Release/gmoogLib.dll')
+    # 'C:/Chimera/gmoogLib/gmoogLib/x64/Release/gmoogLib.dll')
+    'C:/Chimera/gmoogLib/GigaMOOGUDP/x64/Release/gmoogLib.dll')
 class GM_python(object):
     def __init__(self):
         gmoogLib.gm_new.argtypes = []
@@ -94,14 +95,17 @@ def test_with_bare_command():
         print('set', "DAC"+str(1+DACoffset), ind, opt_amps1[ind], freqs1[ind], phase_degs1[ind])
 
 def test_with_FreqTones_class():
-    MAX_AMPLITUDE = 30.5
-    dac0_init_amp = np.array([27.92, 28.22, 28.32, 28.37, 28.47, 28.62, 28.92, 29.07, 29.17])
-    dac1_init_amp = np.array([26.92, 27.32, 27.42, 27.57, 27.82, 28.02, 28.42, 28.62, 28.87])
+    # MAX_AMPLITUDE = 30.5
+    # dac0_init_amp = np.array([27.92, 28.22, 28.32, 28.37, 28.47, 28.62, 28.92, 29.07, 29.17])
+    # dac1_init_amp = np.array([26.92, 27.32, 27.42, 27.57, 27.82, 28.02, 28.42, 28.62, 28.87])
     
-    freq_tones0 = ft.FrequencyTones(0, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
-    freq_tones0.set_initial_amps(dac0_init_amp)
-    freq_tones1 = ft.FrequencyTones(1, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
-    freq_tones1.set_initial_amps(dac1_init_amp)
+    # freq_tones0 = ft.FrequencyTones(0, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
+    # freq_tones0.set_initial_amps(dac0_init_amp)
+    # freq_tones1 = ft.FrequencyTones(1, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
+    # freq_tones1.set_initial_amps(dac1_init_amp)
+
+    freq_tones0 = ft.FrequencyTones.fromFixedFrequencySpacing(0, 13, 98,3,95,max_amp=100,repeat=2)
+    freq_tones1 = ft.FrequencyTones.fromFixedFrequencySpacing(1, 1, 98,3,95,max_amp=100,repeat=4)
 
     gmoog = GM_python()
     client = zynq_tcp_client()
@@ -159,6 +163,6 @@ def setGMoogAmplitude():
 
 if __name__ == '__main__':
     # test_with_bare_command()
-    # test_with_FreqTones_class()
+    test_with_FreqTones_class()
     # test_with_optimizer()
-    setGMoogAmplitude()
+    # setGMoogAmplitude()

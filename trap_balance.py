@@ -18,7 +18,8 @@ sys.path.append('C:\Chimera\B240_data_analysis\Library\ChimeraGenTools')
 from AnalysisHelpers import findAtomLocs
 
 tweezer_moncam_ip = '10.10.0.8'
-tweezer_moncam_setting = './tweezer_monitor_20230926_5x5.xml'
+tweezer_moncam_setting = './tweezer_monitor_20240515_1x13.xml'
+
 # trap_depth_datafile = 'trap_depth_2022-10-19.h5'
 # dac0_init_amp = np.array([27.92, 28.22, 28.32, 28.37, 28.47, 28.62, 28.92, 29.07, 29.17])
 # dac1_init_amp = np.array([26.92, 27.32, 27.42, 27.57, 27.82, 28.02, 28.42, 28.62, 28.87])
@@ -81,20 +82,37 @@ tweezer_moncam_setting = './tweezer_monitor_20230926_5x5.xml'
 # freq_tones1.set_initial_amps(dac1_init_amp)
 
 # 2023/09/26 trap depth balancing for 5x5 grid
-GRID = [5,5]
-trap_depth_datafile = 'trap_depth_2023-9-26.h5'
-dac0_init_amp = np.array([100,100,100,100,100])
-dac1_init_amp = np.array([100,100,100,100,100])
+# GRID = [5,5]
+# trap_depth_datafile = 'trap_depth_2023-9-26.h5'
+# dac0_init_amp = np.array([100,100,100,100,100])
+# dac1_init_amp = np.array([100,100,100,100,100])
+# MAX_AMPLITUDE = 100
+# freq_tones0 = FrequencyTones(DACoffset=0, numtones=5, 
+#                              freqs=np.array([87.60, 91.20, 96.00, 98.40, 105.60]),
+#                              phases=np.array([0.63, 2.51, 22.62, 40.21, 123.15]), 
+#                              amplitude=28.3, max_amp= MAX_AMPLITUDE, repeat=2)
+# freq_tones0.set_initial_amps(dac0_init_amp)
+# freq_tones1 = FrequencyTones(DACoffset=1, numtones=5, 
+#                              freqs=np.array([87.60, 91.20, 96.00, 98.40, 105.60]),
+#                              phases=np.array([0.63, 2.51, 22.62, 40.21, 123.15]), 
+#                              amplitude=28.3, max_amp= MAX_AMPLITUDE, repeat=2)
+# freq_tones1.set_initial_amps(dac1_init_amp)
+
+# 2024/05/15 trap depth balancing for 1x13 grid
+GRID = [1,13]
+trap_depth_datafile = 'trap_depth_2024-5-15.h5'
+dac0_init_amp = np.array([95,95,95,95,95,95,95,95,95,95,95,95,95])
+dac1_init_amp = np.array([95])
 MAX_AMPLITUDE = 100
-freq_tones0 = FrequencyTones(DACoffset=0, numtones=5, 
-                             freqs=np.array([87.60, 91.20, 96.00, 98.40, 105.60]),
-                             phases=np.array([0.63, 2.51, 22.62, 40.21, 123.15]), 
-                             amplitude=28.3, max_amp= MAX_AMPLITUDE, repeat=2)
+freq_tones0 = FrequencyTones(DACoffset=0, numtones=13, 
+                             freqs=np.array([ 80.,  83.,  86.,  89.,  92.,  95.,  98., 101., 104., 107., 110., 113., 116.]),
+                             phases=np.array([ 13.8,  55.4, 124.6, 221.5, 346.2, 138.5, 318.5, 166.2,  41.5, 304.6, 235.4, 193.8, 180. ]), 
+                             amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=2)
 freq_tones0.set_initial_amps(dac0_init_amp)
-freq_tones1 = FrequencyTones(DACoffset=1, numtones=5, 
-                             freqs=np.array([87.60, 91.20, 96.00, 98.40, 105.60]),
-                             phases=np.array([0.63, 2.51, 22.62, 40.21, 123.15]), 
-                             amplitude=28.3, max_amp= MAX_AMPLITUDE, repeat=2)
+freq_tones1 = FrequencyTones(DACoffset=1, numtones=1, 
+                             freqs=np.array([98]),
+                             phases=np.array([0.0]), 
+                             amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=4)
 freq_tones1.set_initial_amps(dac1_init_amp)
 
 
@@ -130,7 +148,8 @@ def trap_balancing():
     img_avg = mako.getAvgImages(num = 20, time_interval = 0.05, debug=False)
     # hardcode maximaLocs, since the findAtomlocs function somehow takes a lot of time
     maximaLocs = \
-        [[79, 82], [171, 83], [293, 83], [354, 83], [538, 83], [81, 267], [172, 267], [294, 267], [356, 267], [540, 267], [81, 329], [173, 328], [295, 329], [356, 329], [540, 329], [82, 451], [174, 451], [296, 451], [357, 451], [541, 451], [83, 543], [174, 543], [297, 543], [358, 543], [542, 543]]
+        [(114, 48), (190, 48), (266, 48), (342, 48), (418, 48), (495, 48), (571, 48), (648, 48), (724, 48), (801, 48), (878, 48), (955, 48), (1032, 48)]
+        #[[79, 82], [171, 83], [293, 83], [354, 83], [538, 83], [81, 267], [172, 267], [294, 267], [356, 267], [540, 267], [81, 329], [173, 328], [295, 329], [356, 329], [540, 329], [82, 451], [174, 451], [296, 451], [357, 451], [541, 451], [83, 543], [174, 543], [297, 543], [358, 543], [542, 543]]
         #[[280, 277], [311, 277], [353, 277], [406, 277], [469, 277], [542, 277], [626, 277], [721, 277], [827, 277], [282, 593], [314, 593], [356, 593], [408, 593], [471, 593], [544, 593], [629, 593], [724, 593], [829, 593]]
         # findAtomLocs(img_avg, window=None, neighborhood_size=95., threshold=16, sort='MatchArray', debug_plot=False, n_cluster_row=2,
         #                       advanced_option = dict({"active":True, "image_threshold":1000, "score_threshold":100}))
@@ -160,7 +179,7 @@ def trap_balancing():
     with open('./result/result.txt', 'w') as f:
         f.close()
     start_time = time()
-    while (err > 1) and (current_step < max_steps):
+    while (err > 0.1) and (current_step < max_steps):
         if (current_step + 1) % 10 == 0:
             print(f"****************** Check tweezer monitor camera amlitude by going back to init amp********************")
             dac0_opt_amp = freq_tones0.opt_amps
@@ -192,16 +211,16 @@ def trap_balancing():
         trap_depth_mapped = trap_depth / twz_amps0 * twz_amps
         if (err > 25):
             dac0_amp, dac1_amp, allerr = optimizer.getGMAmplitudes(
-                trap_depth=unp.nominal_values(trap_depth_mapped), method='mean', ampscale=4, showPlot=False)
+                trap_depth=unp.nominal_values(trap_depth_mapped), method='mean', ampscale=60, showPlot=False)
         elif (err>15):
             dac0_amp, dac1_amp, allerr = optimizer.getGMAmplitudes(
-                trap_depth=unp.nominal_values(trap_depth_mapped), method='mean', ampscale=4, showPlot=False)
-        elif (err>8):
+                trap_depth=unp.nominal_values(trap_depth_mapped), method='mean', ampscale=40, showPlot=False)
+        elif (err>2):
             dac0_amp, dac1_amp, allerr = optimizer.getGMAmplitudes(
-                trap_depth=unp.nominal_values(trap_depth_mapped), method='mean', ampscale=2, showPlot=False)
+                trap_depth=unp.nominal_values(trap_depth_mapped), method='mean', ampscale=10, showPlot=False)
         else:
             dac0_amp, dac1_amp, allerr = optimizer.getGMAmplitudes(
-                trap_depth=unp.nominal_values(trap_depth_mapped), method='randomCross', ampscale=1, showPlot=False)
+                trap_depth=unp.nominal_values(trap_depth_mapped), method='mean', ampscale=1, showPlot=False)
         sleep(0.1)
         # zclient._triggerGigamoogWithTweezersOn()
         zclient.triggerGigamoog()

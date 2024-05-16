@@ -26,12 +26,12 @@ class FrequencyTones:
         self.checkAmplitudeLimit()
 
     @classmethod
-    def fromFixedFrequencySpacing(cls, DACoffset, numtones, freq_center, freq_spacing, amplitude, max_amp = 100):
+    def fromFixedFrequencySpacing(cls, DACoffset, numtones, freq_center, freq_spacing, amplitude, max_amp = 100, repeat=1):
         freqs = freq_center + freq_spacing * np.arange(-(numtones-1)/2, numtones/2, 1)
         # follows https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=1054411 only works for equally spaced tones
         phases = np.pi*((np.arange(numtones)+1)**2)/(numtones)
     
-        return cls(DACoffset, numtones, freqs, phases, amplitude, max_amp)
+        return cls(DACoffset, numtones, freqs, phases, amplitude, max_amp, repeat)
 
     # def __init__(self, DACoffset, numtones, freq_center, freq_spacing, amplitude, max_amp = 100):
     #     self.DACoffset = DACoffset  # which dac is using in gm
@@ -61,8 +61,9 @@ class FrequencyTones:
 
     def print_GM_Command(self):
         for ind in self.tone_idx:
-            print('set DAC{:d} {:d} {:6.2f} {:6.2f} {:6.2f}'.format(
-                0+self.DACoffset, ind, self.opt_amps[ind], self.freqs[ind], self.phase_degs[ind]))
+            for rep in np.arange(self.repeat_num):
+                print('set DAC{:d} {:d} {:6.2f} {:6.2f} {:6.2f}'.format(
+                    0+self.DACoffset, ind*self.repeat_num+rep, self.opt_amps[ind], self.freqs[ind], self.phase_degs[ind]))
 
     def set_initial_amps(self, init_amps:np.ndarray):
         if len(init_amps) != self.num_tones:
@@ -148,21 +149,29 @@ class FrequencyTones:
         plt.show()
 
 if __name__ == '__main__':
-    MAX_AMPLITUDE = 30.5
-    dac0_init_amp = np.array([27.92, 28.22, 28.32, 28.37, 28.47, 28.62, 28.92, 29.07, 29.17])
-    dac1_init_amp = np.array([26.92, 27.32, 27.42, 27.57, 27.82, 28.02, 28.42, 28.62, 28.87])
+    # MAX_AMPLITUDE = 30.5
+    # dac0_init_amp = np.array([27.92, 28.22, 28.32, 28.37, 28.47, 28.62, 28.92, 29.07, 29.17])
+    # dac1_init_amp = np.array([26.92, 27.32, 27.42, 27.57, 27.82, 28.02, 28.42, 28.62, 28.87])
     
-    ft0 = FrequencyTones(0, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
-    ft0._set_frequencies([86.800003, 89.599998, 92.400002, 95.199997, 98, 100.800003, 103.599998, 106.400002, 109.199997])
-    ft0.set_initial_amps(dac0_init_amp)
-    ft1 = FrequencyTones(1, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
-    ft1._set_frequencies([86.800003, 89.599998, 92.400002, 95.199997, 98, 100.800003, 103.599998, 106.400002, 109.199997])
-    ft1.set_initial_amps(dac1_init_amp)
+    # ft0 = FrequencyTones(0, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
+    # ft0._set_frequencies([86.800003, 89.599998, 92.400002, 95.199997, 98, 100.800003, 103.599998, 106.400002, 109.199997])
+    # ft0.set_initial_amps(dac0_init_amp)
+    # ft1 = FrequencyTones(1, 9, 98, 25.2/9, 28.3, max_amp= MAX_AMPLITUDE)
+    # ft1._set_frequencies([86.800003, 89.599998, 92.400002, 95.199997, 98, 100.800003, 103.599998, 106.400002, 109.199997])
+    # ft1.set_initial_amps(dac1_init_amp)
 
 
+    # ft0.print_GM_Command()
+    # print()
+    # ft1.print_GM_Command()
+
+    # ft0.plotTimeTraces()
+    # ft1.plotTimeTraces()
+
+    ft0 = FrequencyTones.fromFixedFrequencySpacing(0, 13, 98,3,95,100,2)
     ft0.print_GM_Command()
-    print()
-    ft1.print_GM_Command()
+    print(repr(ft0.freqs))
+    print(repr(ft0.phase_degs))
 
     ft0.plotTimeTraces()
-    ft1.plotTimeTraces()
+
