@@ -248,42 +248,96 @@ set DAC0 31 100.00 98.40 40.21\
 set DAC0 40 100.00 105.60 123.15\
 set DAC0 41 100.00 105.60 123.15'
 
-def getAmplitudeFromGigamoogInput(ginput:str = ginput):
+ginput = 'set DAC0 0  69.77  80.00  70.70\
+set DAC0 1  69.77  80.00  70.70\
+set DAC0 2  74.35  83.00 294.20\
+set DAC0 3  74.35  83.00 294.20\
+set DAC0 4  82.96  86.00 299.10\
+set DAC0 5  82.96  86.00 299.10\
+set DAC0 6  84.14  89.00  91.00\
+set DAC0 7  84.14  89.00  91.00\
+set DAC0 8  74.32  92.00  35.80\
+set DAC0 9  74.32  92.00  35.80\
+set DAC0 10  66.27  95.00  15.50\
+set DAC0 11  66.27  95.00  15.50\
+set DAC0 12  71.61  98.00 248.70\
+set DAC0 13  71.61  98.00 248.70\
+set DAC0 14  86.20 101.00 162.60\
+set DAC0 15  86.20 101.00 162.60\
+set DAC0 16 100.00 104.00 217.80\
+set DAC0 17 100.00 104.00 217.80\
+set DAC0 18  88.44 107.00 172.30\
+set DAC0 19  88.44 107.00 172.30\
+set DAC0 20  77.74 110.00 167.40\
+set DAC0 21  77.74 110.00 167.40\
+set DAC0 22  74.36 113.00 303.90\
+set DAC0 23  74.36 113.00 303.90\
+set DAC0 24  91.09 116.00 233.20\
+set DAC0 25  91.09 116.00 233.20'
+
+ginput = 'set DAC0 0  72.20  80.00  90.80\
+set DAC0 1  72.20  80.00  90.80\
+set DAC0 2  74.17  83.00 296.40\
+set DAC0 3  74.17  83.00 296.40\
+set DAC0 4  77.99  86.00 217.20\
+set DAC0 5  77.99  86.00 217.20\
+set DAC0 6  80.78  89.00 173.90\
+set DAC0 7  80.78  89.00 173.90\
+set DAC0 8  76.55  92.00 251.20\
+set DAC0 9  76.55  92.00 251.20\
+set DAC0 10  68.98  95.00 168.10\
+set DAC0 11  68.98  95.00 168.10\
+set DAC0 12  75.21  98.00 209.50\
+set DAC0 13  75.21  98.00 209.50\
+set DAC0 14  87.68 101.00 316.30\
+set DAC0 15  87.68 101.00 316.30\
+set DAC0 16  89.66 104.00 239.00\
+set DAC0 17  89.66 104.00 239.00\
+set DAC0 18  90.72 107.00 152.10\
+set DAC0 19  90.72 107.00 152.10\
+set DAC0 20  76.00 110.00 231.30\
+set DAC0 21  76.00 110.00 231.30\
+set DAC0 22  76.74 113.00 132.20\
+set DAC0 23  76.74 113.00 132.20\
+set DAC0 24  94.56 116.00  41.40\
+set DAC0 25  94.56 116.00  41.40'
+
+def getAmplitudeFromGigamoogInput(ginput:str = ginput, repeat=2):
     ginput = list(filter(None, ginput.split('set DAC')))
     ginput = [list(filter(None, _ginput.split(' '))) for _ginput in ginput]
     amp = []
     for gi in ginput:
         amp.append(gi[2])
-    
-    for idx, _amp in enumerate(amp):
+    amp = np.array(amp)
+    for idx, _amp in enumerate(amp[::repeat]):
         print(f"{_amp:s}, ", end='')
-        if idx == 8:
-            print(" ")
+        # if idx == 8:
+        #     print(" ")
     return np.array([float(_) for _ in amp])
 
-def getFrequencyFromGigamoogInput(ginput:str = ginput):
+def getFrequencyFromGigamoogInput(ginput:str = ginput, repeat=2):
     ginput = list(filter(None, ginput.split('set DAC')))
     ginput = [list(filter(None, _ginput.split(' '))) for _ginput in ginput]
     amp = []
     for gi in ginput:
         amp.append(gi[3])
-    
-    for idx, _amp in enumerate(amp):
+    amp = np.array(amp)
+    for idx, _amp in enumerate(amp[::repeat]):
         print(f"{_amp:s}, ", end='')
-        if idx == 8:
-            print(" ")
+        # if idx == 8:
+        #     print(" ")
 
-def getPhaseFromGigamoogInput(ginput:str = ginput):
+def getPhaseFromGigamoogInput(ginput:str = ginput, repeat=2):
     ginput = list(filter(None, ginput.split('set DAC')))
     ginput = [list(filter(None, _ginput.split(' '))) for _ginput in ginput]
     amp = []
     for gi in ginput:
         amp.append(gi[4])
-    
-    for idx, _amp in enumerate(amp):
+    amp = np.array(amp)
+    for idx, _amp in enumerate(amp[::repeat]):
         print(f"{_amp:s}, ", end='')
-        if idx == 8:
-            print(" ")
+        # if idx == 8:
+        #     print(" ")
 
 if __name__ == '__main__':
     # trap_depth_datafile = 'trap_depth_2022-10-19.h5'

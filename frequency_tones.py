@@ -55,8 +55,9 @@ class FrequencyTones:
     def get_GM_Command(self):
         command = []
         for ind in self.tone_idx:
-            command.append('set DAC{:d} {:d} {:6.2f} {:6.2f} {:6.2f}'.format(
-                0+self.DACoffset, ind, self.opt_amps[ind], self.freqs[ind], self.phase_degs[ind]))
+            for rep in np.arange(self.repeat_num):
+                command.append('set DAC{:d} {:d} {:6.2f} {:6.2f} {:6.2f}'.format(
+                    0+self.DACoffset, ind*self.repeat_num+rep, self.opt_amps[ind], self.freqs[ind], self.phase_degs[ind]))
         return command
 
     def print_GM_Command(self):

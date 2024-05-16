@@ -99,14 +99,44 @@ tweezer_moncam_setting = './tweezer_monitor_20240515_1x13.xml'
 # freq_tones1.set_initial_amps(dac1_init_amp)
 
 # 2024/05/15 trap depth balancing for 1x13 grid
+# GRID = [1,13]
+# trap_depth_datafile = 'trap_depth_2024-5-15.h5'
+# dac0_init_amp = np.array([95,95,95,95,95,95,95,95,95,95,95,95,95])
+# dac1_init_amp = np.array([95])
+# MAX_AMPLITUDE = 100
+# freq_tones0 = FrequencyTones(DACoffset=0, numtones=13, 
+#                              freqs=np.array([ 80.,  83.,  86.,  89.,  92.,  95.,  98., 101., 104., 107., 110., 113., 116.]),
+#                              phases=np.array([ 13.8,  55.4, 124.6, 221.5, 346.2, 138.5, 318.5, 166.2,  41.5, 304.6, 235.4, 193.8, 180. ]), 
+#                              amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=2)
+# freq_tones0.set_initial_amps(dac0_init_amp)
+# freq_tones1 = FrequencyTones(DACoffset=1, numtones=1, 
+#                              freqs=np.array([98]),
+#                              phases=np.array([0.0]), 
+#                              amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=4)
+# freq_tones1.set_initial_amps(dac1_init_amp)
+# GRID = [1,13]
+# trap_depth_datafile = 'trap_depth_2024-5-15-round2.h5'
+# dac0_init_amp = np.array([69.77, 74.35, 82.96, 84.14, 74.32, 66.27, 71.61, 86.20, 100.00, 88.44, 77.74, 74.36, 91.09])
+# dac1_init_amp = np.array([95.00])
+# MAX_AMPLITUDE = 100
+# freq_tones0 = FrequencyTones(DACoffset=0, numtones=13, 
+#                              freqs=np.array([ 80.00, 83.00, 86.00, 89.00, 92.00, 95.00, 98.00, 101.00, 104.00, 107.00, 110.00, 113.00, 116.00]),
+#                              phases=np.array([ 70.70, 294.20, 299.10, 91.00, 35.80, 15.50, 248.70, 162.60, 217.80, 172.30, 167.40, 303.90, 233.20 ]), 
+#                              amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=2)
+# freq_tones0.set_initial_amps(dac0_init_amp)
+# freq_tones1 = FrequencyTones(DACoffset=1, numtones=1, 
+#                              freqs=np.array([98]),
+#                              phases=np.array([0.0]), 
+#                              amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=4)
+# freq_tones1.set_initial_amps(dac1_init_amp)
 GRID = [1,13]
-trap_depth_datafile = 'trap_depth_2024-5-15.h5'
-dac0_init_amp = np.array([95,95,95,95,95,95,95,95,95,95,95,95,95])
-dac1_init_amp = np.array([95])
+trap_depth_datafile = 'trap_depth_2024-5-15-round3.h5'
+dac0_init_amp = np.array([72.20, 74.17, 77.99, 80.78, 76.55, 68.98, 75.21, 87.68, 89.66, 90.72, 76.00, 76.74, 94.56])
+dac1_init_amp = np.array([95.00])
 MAX_AMPLITUDE = 100
 freq_tones0 = FrequencyTones(DACoffset=0, numtones=13, 
-                             freqs=np.array([ 80.,  83.,  86.,  89.,  92.,  95.,  98., 101., 104., 107., 110., 113., 116.]),
-                             phases=np.array([ 13.8,  55.4, 124.6, 221.5, 346.2, 138.5, 318.5, 166.2,  41.5, 304.6, 235.4, 193.8, 180. ]), 
+                             freqs=np.array([ 80.00, 83.00, 86.00, 89.00, 92.00, 95.00, 98.00, 101.00, 104.00, 107.00, 110.00, 113.00, 116.00]),
+                             phases=np.array([ 70.80, 296.40, 217.20, 173.90, 251.20, 168.10, 209.50, 316.30, 239.00, 152.10, 231.30, 132.20, 41.40 ]), 
                              amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=2)
 freq_tones0.set_initial_amps(dac0_init_amp)
 freq_tones1 = FrequencyTones(DACoffset=1, numtones=1, 
@@ -114,6 +144,7 @@ freq_tones1 = FrequencyTones(DACoffset=1, numtones=1,
                              phases=np.array([0.0]), 
                              amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=4)
 freq_tones1.set_initial_amps(dac1_init_amp)
+
 
 
 def writeTwoTonesToGIGAMOOG(freq_tones0:FrequencyTones, freq_tones1:FrequencyTones, gmoog:GM_python, zclient:zynq_tcp_client):
@@ -211,13 +242,13 @@ def trap_balancing():
         trap_depth_mapped = trap_depth / twz_amps0 * twz_amps
         if (err > 25):
             dac0_amp, dac1_amp, allerr = optimizer.getGMAmplitudes(
-                trap_depth=unp.nominal_values(trap_depth_mapped), method='mean', ampscale=60, showPlot=False)
+                trap_depth=unp.nominal_values(trap_depth_mapped), method='mean', ampscale=10, showPlot=False)
         elif (err>15):
             dac0_amp, dac1_amp, allerr = optimizer.getGMAmplitudes(
-                trap_depth=unp.nominal_values(trap_depth_mapped), method='mean', ampscale=40, showPlot=False)
+                trap_depth=unp.nominal_values(trap_depth_mapped), method='mean', ampscale=5, showPlot=False)
         elif (err>2):
             dac0_amp, dac1_amp, allerr = optimizer.getGMAmplitudes(
-                trap_depth=unp.nominal_values(trap_depth_mapped), method='mean', ampscale=10, showPlot=False)
+                trap_depth=unp.nominal_values(trap_depth_mapped), method='mean', ampscale=3, showPlot=False)
         else:
             dac0_amp, dac1_amp, allerr = optimizer.getGMAmplitudes(
                 trap_depth=unp.nominal_values(trap_depth_mapped), method='mean', ampscale=1, showPlot=False)
