@@ -129,14 +129,44 @@ tweezer_moncam_setting = './tweezer_monitor_20240515_1x13.xml'
 #                              phases=np.array([0.0]), 
 #                              amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=4)
 # freq_tones1.set_initial_amps(dac1_init_amp)
+# GRID = [1,13]
+# trap_depth_datafile = 'trap_depth_2024-5-15-round3.h5'
+# dac0_init_amp = np.array([72.20, 74.17, 77.99, 80.78, 76.55, 68.98, 75.21, 87.68, 89.66, 90.72, 76.00, 76.74, 94.56])
+# dac1_init_amp = np.array([95.00])
+# MAX_AMPLITUDE = 100
+# freq_tones0 = FrequencyTones(DACoffset=0, numtones=13, 
+#                              freqs=np.array([ 80.00, 83.00, 86.00, 89.00, 92.00, 95.00, 98.00, 101.00, 104.00, 107.00, 110.00, 113.00, 116.00]),
+#                              phases=np.array([ 70.80, 296.40, 217.20, 173.90, 251.20, 168.10, 209.50, 316.30, 239.00, 152.10, 231.30, 132.20, 41.40 ]), 
+#                              amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=2)
+# freq_tones0.set_initial_amps(dac0_init_amp)
+# freq_tones1 = FrequencyTones(DACoffset=1, numtones=1, 
+#                              freqs=np.array([98]),
+#                              phases=np.array([0.0]), 
+#                              amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=4)
+# freq_tones1.set_initial_amps(dac1_init_amp)
+# GRID = [1,13]
+# trap_depth_datafile = 'trap_depth_2024-5-16-round4.h5'
+# dac0_init_amp = np.array([68.84, 76.70, 82.39, 78.80, 74.11, 68.28, 69.93, 83.12, 96.67, 88.41, 76.78, 83.27, 93.94])
+# dac1_init_amp = np.array([95.00])
+# MAX_AMPLITUDE = 100
+# freq_tones0 = FrequencyTones(DACoffset=0, numtones=13, 
+#                              freqs=np.array([ 80.00, 83.00, 86.00, 89.00, 92.00, 95.00, 98.00, 101.00, 104.00, 107.00, 110.00, 113.00, 116.00]),
+#                              phases=np.array([ 13.8,  55.4, 124.6, 221.5, 346.2, 138.5, 318.5, 166.2,  41.5, 304.6, 235.4, 193.8, 180. ]), 
+#                              amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=2)
+# freq_tones0.set_initial_amps(dac0_init_amp)
+# freq_tones1 = FrequencyTones(DACoffset=1, numtones=1, 
+#                              freqs=np.array([98]),
+#                              phases=np.array([0.0]), 
+#                              amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=4)
+# freq_tones1.set_initial_amps(dac1_init_amp)
 GRID = [1,13]
-trap_depth_datafile = 'trap_depth_2024-5-15-round3.h5'
-dac0_init_amp = np.array([72.20, 74.17, 77.99, 80.78, 76.55, 68.98, 75.21, 87.68, 89.66, 90.72, 76.00, 76.74, 94.56])
+trap_depth_datafile = 'trap_depth_2024-5-16-round5.h5'
+dac0_init_amp = np.array([70.50, 75.79, 83.02, 82.18, 74.48, 69.90, 74.14, 86.33, 92.70, 88.02, 78.43, 74.40, 91.38])
 dac1_init_amp = np.array([95.00])
 MAX_AMPLITUDE = 100
 freq_tones0 = FrequencyTones(DACoffset=0, numtones=13, 
                              freqs=np.array([ 80.00, 83.00, 86.00, 89.00, 92.00, 95.00, 98.00, 101.00, 104.00, 107.00, 110.00, 113.00, 116.00]),
-                             phases=np.array([ 70.80, 296.40, 217.20, 173.90, 251.20, 168.10, 209.50, 316.30, 239.00, 152.10, 231.30, 132.20, 41.40 ]), 
+                             phases=np.array([ 13.8,  55.4, 124.6, 221.5, 346.2, 138.5, 318.5, 166.2,  41.5, 304.6, 235.4, 193.8, 180. ]), 
                              amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=2)
 freq_tones0.set_initial_amps(dac0_init_amp)
 freq_tones1 = FrequencyTones(DACoffset=1, numtones=1, 
@@ -144,6 +174,7 @@ freq_tones1 = FrequencyTones(DACoffset=1, numtones=1,
                              phases=np.array([0.0]), 
                              amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=4)
 freq_tones1.set_initial_amps(dac1_init_amp)
+
 
 
 

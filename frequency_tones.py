@@ -15,7 +15,7 @@ class FrequencyTones:
         self.tone_idx = np.arange(self.num_tones)
         self.freqs = freqs
         self.phases = phases
-        self.phase_degs = np.round(self.phases*180/np.pi % 360, 1)
+        self.phase_degs = phases #np.round(self.phases*180/np.pi % 360, 1)
         self.init_amps = np.ones(self.num_tones)*self.nominal_amplitude
         self.opt_amps = self.init_amps.copy()
         self.opt_amps_previous_values = [self.opt_amps]
@@ -30,7 +30,7 @@ class FrequencyTones:
         freqs = freq_center + freq_spacing * np.arange(-(numtones-1)/2, numtones/2, 1)
         # follows https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=1054411 only works for equally spaced tones
         phases = np.pi*((np.arange(numtones)+1)**2)/(numtones)
-    
+        phases = np.round(phases*180/np.pi % 360, 1)
         return cls(DACoffset, numtones, freqs, phases, amplitude, max_amp, repeat)
 
     # def __init__(self, DACoffset, numtones, freq_center, freq_spacing, amplitude, max_amp = 100):
@@ -109,9 +109,9 @@ class FrequencyTones:
 
     def writeToGIGAMOOG(self, gmoog):
         num_tones = self.num_tones*self.repeat_num
-        freqs = np.tile(self.freqs, self.repeat_num)
-        opt_amps = np.tile(self.opt_amps, self.repeat_num)
-        phase_degs = np.tile(self.phase_degs, self.repeat_num)
+        freqs = np.repeat(self.freqs, self.repeat_num)
+        opt_amps = np.repeat(self.opt_amps, self.repeat_num)
+        phase_degs = np.repeat(self.phase_degs, self.repeat_num)
 
 
         seq = ctypes.c_double * num_tones
