@@ -18,7 +18,7 @@ sys.path.append('C:\Chimera\B240_data_analysis\Library\ChimeraGenTools')
 from AnalysisHelpers import findAtomLocs
 
 tweezer_moncam_ip = '10.10.0.8'
-tweezer_moncam_setting = './tweezer_monitor_20240515_1x13.xml'
+tweezer_moncam_setting = './tweezer_monitor_20250413_1x13.xml'
 
 # trap_depth_datafile = 'trap_depth_2022-10-19.h5'
 # dac0_init_amp = np.array([27.92, 28.22, 28.32, 28.37, 28.47, 28.62, 28.92, 29.07, 29.17])
@@ -159,9 +159,25 @@ tweezer_moncam_setting = './tweezer_monitor_20240515_1x13.xml'
 #                              phases=np.array([0.0]), 
 #                              amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=4)
 # freq_tones1.set_initial_amps(dac1_init_amp)
+# GRID = [1,13]
+# trap_depth_datafile = 'trap_depth_2024-5-16-round5.h5'
+# dac0_init_amp = np.array([70.50, 75.79, 83.02, 82.18, 74.48, 69.90, 74.14, 86.33, 92.70, 88.02, 78.43, 74.40, 91.38])
+# dac1_init_amp = np.array([95.00])
+# MAX_AMPLITUDE = 100
+# freq_tones0 = FrequencyTones(DACoffset=0, numtones=13, 
+#                              freqs=np.array([ 80.00, 83.00, 86.00, 89.00, 92.00, 95.00, 98.00, 101.00, 104.00, 107.00, 110.00, 113.00, 116.00]),
+#                              phases=np.array([ 13.8,  55.4, 124.6, 221.5, 346.2, 138.5, 318.5, 166.2,  41.5, 304.6, 235.4, 193.8, 180. ]), 
+#                              amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=2)
+# freq_tones0.set_initial_amps(dac0_init_amp)
+# freq_tones1 = FrequencyTones(DACoffset=1, numtones=1, 
+#                              freqs=np.array([98]),
+#                              phases=np.array([0.0]), 
+#                              amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=4)
+# freq_tones1.set_initial_amps(dac1_init_amp)
+
 GRID = [1,13]
-trap_depth_datafile = 'trap_depth_2024-5-16-round5.h5'
-dac0_init_amp = np.array([70.50, 75.79, 83.02, 82.18, 74.48, 69.90, 74.14, 86.33, 92.70, 88.02, 78.43, 74.40, 91.38])
+trap_depth_datafile = 'trap_depth_2025-4-13.h5'
+dac0_init_amp = np.array([72.42, 74.52, 81.02, 82.33, 74.60, 66.77, 74.23, 87.94, 94.54, 88.74, 76.99, 76.47, 90.71])
 dac1_init_amp = np.array([95.00])
 MAX_AMPLITUDE = 100
 freq_tones0 = FrequencyTones(DACoffset=0, numtones=13, 
@@ -172,9 +188,8 @@ freq_tones0.set_initial_amps(dac0_init_amp)
 freq_tones1 = FrequencyTones(DACoffset=1, numtones=1, 
                              freqs=np.array([98]),
                              phases=np.array([0.0]), 
-                             amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=4)
+                             amplitude=0.0, max_amp= MAX_AMPLITUDE, repeat=6)
 freq_tones1.set_initial_amps(dac1_init_amp)
-
 
 
 
@@ -210,7 +225,8 @@ def trap_balancing():
     img_avg = mako.getAvgImages(num = 20, time_interval = 0.05, debug=False)
     # hardcode maximaLocs, since the findAtomlocs function somehow takes a lot of time
     maximaLocs = \
-        [(114, 48), (190, 48), (266, 48), (342, 48), (418, 48), (495, 48), (571, 48), (648, 48), (724, 48), (801, 48), (878, 48), (955, 48), (1032, 48)]
+        [(121, 49), (199, 49), (277, 49), (355, 49), (434, 49), (512, 49), (590, 49), (669, 49), (748, 50), (826, 50), (905, 50), (984, 50), (1064, 50)]
+        # [(114, 48), (190, 48), (266, 48), (342, 48), (418, 48), (495, 48), (571, 48), (648, 48), (724, 48), (801, 48), (878, 48), (955, 48), (1032, 48)]
         #[[79, 82], [171, 83], [293, 83], [354, 83], [538, 83], [81, 267], [172, 267], [294, 267], [356, 267], [540, 267], [81, 329], [173, 328], [295, 329], [356, 329], [540, 329], [82, 451], [174, 451], [296, 451], [357, 451], [541, 451], [83, 543], [174, 543], [297, 543], [358, 543], [542, 543]]
         #[[280, 277], [311, 277], [353, 277], [406, 277], [469, 277], [542, 277], [626, 277], [721, 277], [827, 277], [282, 593], [314, 593], [356, 593], [408, 593], [471, 593], [544, 593], [629, 593], [724, 593], [829, 593]]
         # findAtomLocs(img_avg, window=None, neighborhood_size=95., threshold=16, sort='MatchArray', debug_plot=False, n_cluster_row=2,

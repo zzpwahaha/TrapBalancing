@@ -169,7 +169,9 @@ if __name__ == '__main__':
     # ft0.plotTimeTraces()
     # ft1.plotTimeTraces()
 
-    ft0 = FrequencyTones.fromFixedFrequencySpacing(0, 13, 98,3,95,100,2)
+    # ft0 = FrequencyTones.fromFixedFrequencySpacing(0, 13, 98,3,95,100,2)
+    # ft0 = FrequencyTones.fromFixedFrequencySpacing(1, 7, 98,5,95,100,3)
+    ft0 = FrequencyTones.fromFixedFrequencySpacing(0, 9, 98,3.75,95,100,2)
     ft0.print_GM_Command()
     print(repr(ft0.freqs))
     print(repr(ft0.phase_degs))
